@@ -21,9 +21,11 @@ fn get_wexe_cfg_dir() -> PathBuf {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let wexe_cfg_dir = get_wexe_cfg_dir();
+    println!("Central Config directory: {:?}", wexe_cfg_dir);
     let exe = env::current_exe()?;
     println!("Current executable: {:?}", exe);
     let toml_name = exe.with_extension("toml");
+    println!("Local Config file: {:?}", toml_name);
     let cfg_naked = toml_name.file_name().unwrap();
     let cfg_file = wexe_cfg_dir.join(cfg_naked);
     println!("App config file is: {:?}", cfg_file);
