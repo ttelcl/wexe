@@ -1,0 +1,44 @@
+
+# This is an example wexe application configuration file.
+# Since this is named "example.toml", it configures an app stub named
+# "example.exe" in the same directory.
+
+# The target executable file path. This is outside any named section,
+# so must come first
+target = "C:\\bin\\example.exe"
+
+[env]
+# This is the top level environment variables section.
+# It has some subsections below but only directly contains
+# some subcommands that don't take a key+value.
+# Delete the "BAR" and "BAZ" environment variables.
+delete = [ 
+  "BAR",
+  "BAZ",
+]
+
+[env.set]
+# This is the environment variables override / add section.
+# Set the "FOO" environment variable to "bar" (overriding it or setting it).
+FOO = "bar"
+
+[env.pathlike]
+# This section has subsections for appending and prepending to path-like
+# environment variables. It doesn't directly contain any key+value pairs.
+
+[env.pathlike.append]
+# This is the path-like environment variables append section.
+# Append the following paths to the "PATH" environment variable.
+PATH = [
+  "C:\\Windows\\System32",
+  "C:\\bin",
+]
+
+[env.pathlike.prepend]
+# This is the path-like environment variables prepend section.
+# Prepend the following paths to the "PATH" environment variable.
+# Note that the path of the target executable is automatically prepended.
+PATH = [
+  ".",
+]
+
