@@ -54,10 +54,10 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
     extended_args.extend(cfg.args.prepend);
     extended_args.extend(args);
     extended_args.extend(cfg.args.append);
-    println!("Expanded args:");
-    for arg in extended_args.iter() {
-        println!("+ {}", arg);
-    }
+    // println!("Expanded args:");
+    // for arg in extended_args.iter() {
+    //     println!("+ {}", arg);
+    // }
 
     let mut cmd = Command::new(cfg.target);
     cmd.args(extended_args);
@@ -82,16 +82,31 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
         new_elements.extend(v.append.iter().map(|s| PathBuf::from(s)));
 
         let new_variable: String = env::join_paths(new_elements.iter()).unwrap().into_string().unwrap();
-        println!("Edited PATH-like variable \x1b[94m{:}\x1b[0m: \x1b[92m{:?}\x1b[0m.", k, &new_variable);
+        // println!("Edited PATH-like variable \x1b[94m{:}\x1b[0m: \x1b[92m{:?}\x1b[0m.", k, &new_variable);
         cmd.env(k, new_variable);
     }
 
     println!(
-        "\x1b[91mNOT\x1b[0m Running command: \x1b[92m{:?}\x1b[0m.",
+        "Running command: \x1b[92m{:?}\x1b[0m.",
         cmd
     );
 
-    Ok(())
+    let status =
+        cmd.status();
+    match status {
+        Ok(status) => {
+            if status.success() {
+                println!("Command succeeded.");
+            } else {
+                println!("Command failed with exit code: \x1b[91m{:?}\x1b[0m.", status.code());
+            }
+            Ok(())
+        }
+        Err(e) => {
+            println!("Command failed with error: \x1b[91m{:?}\x1b[0m.", e);
+            Err(Box::new(e))
+        }
+    }
 }
 
 fn run_wexe() -> Result<(), Box<dyn Error>> {
