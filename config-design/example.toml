@@ -7,38 +7,44 @@
 # so must come first
 target = "C:\\bin\\example.exe"
 
-[env]
+# This section allows prepending and appending additional command line
+# arguments to ones passed to the wexe loader executable.
+[args]
+prepend = [ "arg1", "arg2" ]
+append = [ "arg98", "arg99" ]
+
 # This is the top level environment variables section.
 # It has some subsections below but only directly contains
 # some subcommands that don't take a key+value.
-# Delete the "BAR" and "BAZ" environment variables.
+[env]
+# Delete the "BAR" and "BAZ" environment variables, if they exist
 delete = [ 
   "BAR",
   "BAZ",
 ]
 
+# This is the environment variables override / add subsection.
 [env.set]
-# This is the environment variables override / add section.
 # Set the "FOO" environment variable to "bar" (overriding it or setting it).
 FOO = "bar"
 
-[env.pathlike]
 # This section has subsections for appending and prepending to path-like
 # environment variables. It doesn't directly contain any key+value pairs.
+[env.pathlike]
 
-[env.pathlike.append]
-# This is the path-like environment variables append section.
-# Append the following paths to the "PATH" environment variable.
-PATH = [
-  "C:\\Windows\\System32",
-  "C:\\bin",
-]
-
-[env.pathlike.prepend]
 # This is the path-like environment variables prepend section.
+[env.pathlike.prepend]
 # Prepend the following paths to the "PATH" environment variable.
 # Note that the path of the target executable is automatically prepended.
 PATH = [
   ".",
+]
+
+# This is the path-like environment variables append section.
+[env.pathlike.append]
+# Append the following paths to the "PATH" environment variable.
+PATH = [
+  "C:\\Windows\\System32",
+  "C:\\bin",
 ]
 

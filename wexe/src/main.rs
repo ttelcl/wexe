@@ -4,7 +4,7 @@ use std::error::Error;
 use std::env;
 //use std::path::PathBuf;
 
-use config_model::{get_wexe_cfg_dir, get_config_file};
+use config_model::{get_wexe_cfg_dir, get_config_file, read_config_file};
 
 fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
     if tag == "wexe" {
@@ -12,10 +12,11 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
     }
 
     println!("Running in redirect mode (app '\x1b[92m{:?}\x1b[0m').", tag.clone());
-    let cfg_file = get_config_file(tag.clone());
-    match cfg_file {
+    let cfg_file_opt = get_config_file(tag.clone());
+    let cfg_file = match cfg_file_opt {
         Some(cfg_file) => {
             println!("Config file for app \x1b[94m{:}\x1b[0m: \x1b[92m{:?}\x1b[0m.", tag.clone(), cfg_file);
+            cfg_file
         },
         None => {
             println!("No config file found for app '\x1b[91m{:}\x1b[0m'.", tag.clone());
@@ -23,7 +24,7 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
             let error = std::io::Error::new(std::io::ErrorKind::NotFound, error_text);
             return Err(Box::new(error));
         }
-    }
+    };
 
     //let wexe_cfg_dir = get_wexe_cfg_dir();
     //println!("Central Config directory: \x1b[93m{:?}\x1b[0m.", wexe_cfg_dir);
@@ -33,6 +34,10 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
     for arg in env::args().skip(skip_count) {
         println!("+ {}", arg);
     }
+
+    let cfg = read_config_file(cfg_file);
+    println!("Config for app \x1b[94m{:}\x1b[0m: \x1b[92m{:?}\x1b[0m.", tag.clone(), cfg);
+
     Ok(())
 }
 
