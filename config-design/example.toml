@@ -32,18 +32,16 @@ FOO = "bar"
 # environment variables. It doesn't directly contain any key+value pairs.
 [env.pathlike]
 
-# This is the path-like environment variables prepend section.
-[env.pathlike.prepend]
+# This is the path-like environment variables prepend/append section for "PATH".
+# (the last segment, "PATH", is the name of the environment variable to edit)
+[env.pathlike.PATH]
 # Prepend the following paths to the "PATH" environment variable.
 # Note that the path of the target executable is automatically prepended.
-PATH = [
+prepend = [
   ".",
 ]
-
-# This is the path-like environment variables append section.
-[env.pathlike.append]
 # Append the following paths to the "PATH" environment variable.
-PATH = [
+append = [
   "C:\\Windows\\System32",
   "C:\\bin",
 ]

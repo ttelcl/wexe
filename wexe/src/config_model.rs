@@ -49,14 +49,22 @@ pub struct ConfigArgs {
 pub struct ConfigEnv {
     pub set: Option<HashMap<String, String>>,
     pub delete: Option<Vec<String>>,
-    pub pathlike: Option<ConfigEnvPathlike>,
+    pub pathlike: Option<HashMap<String, ConfigArgs>>,
 }
 
-// Models the "env.pathlike" section of the configuration file
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ConfigEnvPathlike {
-    pub prepend: Option<HashMap<String, Vec<String>>>,
-    pub append: Option<HashMap<String, Vec<String>>>,
+// // Models the "env.pathlike" section of the configuration file
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct ConfigEnvPathlike {
+//     pub prepend: Option<HashMap<String, Vec<String>>>,
+//     pub append: Option<HashMap<String, Vec<String>>>,
+// }
+
+#[derive(Debug, Serialize)]
+pub struct ListOps {
+    // elements to prepend to the list
+    pub prepend: Vec<String>,
+    // elements to append to the list
+    pub append: Vec<String>,
 }
 
 // The disambiguated Wexe Application configuration model
@@ -64,18 +72,14 @@ pub struct ConfigEnvPathlike {
 pub struct WexeApp {
     // The target executable to run
     pub target: String,
-    // Arguments to prepend to the command line
-    pub args_prepend: Vec<String>,
-    // Arguments to append to the command line
-    pub args_append: Vec<String>,
+    // Arguments to prepend and append to the command line
+    pub args: ListOps,
     // Environment variables to set or override
     pub env_set: HashMap<String, String>,
     // Environment variables to delete
     pub env_delete: Vec<String>,
-    // Elements to prepend to PATH-like environment variables
-    pub env_pathlike_prepend: HashMap<String, Vec<String>>,
-    // Elements to append to PATH-like environment variables
-    pub env_pathlike_append: HashMap<String, Vec<String>>,
+    // Prepending or appending elements to environment variables that are PATH-like
+    pub env_pathlike: HashMap<String, ListOps>,
 }
 
 pub fn read_config_file(cfg_file: PathBuf) -> WexeApp {
@@ -88,23 +92,31 @@ pub fn read_config_file(cfg_file: PathBuf) -> WexeApp {
         delete: None,
         pathlike: None,
     });
-    let env_pathlike = env.pathlike.unwrap_or(ConfigEnvPathlike {
-        prepend: None,
-        append: None,
-    });
+    let env_pathlike = env.pathlike.unwrap_or(HashMap::new());
     let arguments = cfg.args.unwrap_or(ConfigArgs {
         prepend: None,
         append: None,
     });
     let target = Path::new(&cfg.target);
+    let arg_ops = ListOps {
+        prepend: arguments.prepend.unwrap_or(Vec::new()),
+        append: arguments.append.unwrap_or(Vec::new()),
+    };
+    let env_pathlike_ops = env_pathlike.iter()
+        .map(|(k, v)| {
+            let ops = ListOps {
+                prepend: v.prepend.clone().unwrap_or(Vec::new()),
+                append: v.append.clone().unwrap_or(Vec::new()),
+            };
+            (k.clone(), ops)
+        })
+        .collect::<HashMap<String, ListOps>>();
     let appdef = WexeApp {
         target: target.to_str().unwrap().to_string(),
-        args_prepend: arguments.prepend.unwrap_or(Vec::new()),
-        args_append: arguments.append.unwrap_or(Vec::new()),
+        args: arg_ops,
         env_set: env.set.unwrap_or(HashMap::new()),
         env_delete: env.delete.unwrap_or(Vec::new()),
-        env_pathlike_prepend: env_pathlike.prepend.unwrap_or(HashMap::new()),
-        env_pathlike_append: env_pathlike.append.unwrap_or(HashMap::new()),
+        env_pathlike: env_pathlike_ops,
     };
     if !target.is_absolute() {
         panic!("Target executable path must be absolute: {:?}", appdef.target);
