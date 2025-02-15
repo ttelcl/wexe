@@ -95,12 +95,14 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
     match status {
         Ok(status) => {
             if status.success() {
-                println!("Command succeeded.");
+                println!("Command succeeded with exit code: \x1b[92m0\x1b[0m.");
             } else {
-                println!(
-                    "Command failed with exit code: \x1b[91m{:?}\x1b[0m.",
-                    status.code()
-                );
+                match status.code() {
+                    Some(code) => {
+                        println!("Command returned exit code: \x1b[91m{:}\x1b[0m.", code)
+                    }
+                    None => println!("Command failed with no exit code (terminated by signal)."),
+                }
             }
             Ok(())
         }
