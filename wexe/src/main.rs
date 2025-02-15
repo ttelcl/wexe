@@ -73,7 +73,7 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
             let evar = env::var(k);
             match evar {
                 Ok(evar) => env::split_paths(evar.as_str()).collect(),
-                Err(_) => Vec::new(),                
+                Err(_) => Vec::new(),
             }
         };
         let mut new_elements: Vec<PathBuf> = Vec::new();
@@ -81,24 +81,26 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
         new_elements.extend(originals.iter().map(|s| s.clone()));
         new_elements.extend(v.append.iter().map(|s| PathBuf::from(s)));
 
-        let new_variable: String = env::join_paths(new_elements.iter()).unwrap().into_string().unwrap();
+        let new_variable: String = env::join_paths(new_elements.iter())
+            .unwrap()
+            .into_string()
+            .unwrap();
         // println!("Edited PATH-like variable \x1b[94m{:}\x1b[0m: \x1b[92m{:?}\x1b[0m.", k, &new_variable);
         cmd.env(k, new_variable);
     }
 
-    println!(
-        "Running command: \x1b[92m{:?}\x1b[0m.",
-        cmd
-    );
+    println!("Running command: \x1b[92m{:?}\x1b[0m.", cmd);
 
-    let status =
-        cmd.status();
+    let status = cmd.status();
     match status {
         Ok(status) => {
             if status.success() {
                 println!("Command succeeded.");
             } else {
-                println!("Command failed with exit code: \x1b[91m{:?}\x1b[0m.", status.code());
+                println!(
+                    "Command failed with exit code: \x1b[91m{:?}\x1b[0m.",
+                    status.code()
+                );
             }
             Ok(())
         }
