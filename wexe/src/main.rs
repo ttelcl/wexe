@@ -12,7 +12,7 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
     }
 
     println!(
-        "Running in redirect mode (app '\x1b[92m{:?}\x1b[0m').",
+        "Running in redirect mode (app '\x1b[92m{}\x1b[0m').",
         tag.clone()
     );
     let cfg_file_opt = get_config_file(tag.clone());
