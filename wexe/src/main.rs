@@ -4,25 +4,29 @@ use std::env;
 use std::process::Command;
 use std::{error::Error, path::PathBuf};
 
-use config_model::{get_config_file, read_config_file};
+use config_model::{get_config_file, read_config_file, wexe_dbg};
 
 fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
     if tag == "wexe" {
         panic!("To prevent infinite recursion, 'wexe' is rejected as app name.");
     }
 
-    println!(
-        "Running in redirect mode (app '\x1b[92m{}\x1b[0m').",
-        tag.clone()
-    );
+    if wexe_dbg() {
+        println!(
+            "\x1B[44mRunning in redirect mode (app '\x1b[92m{}\x1b[0m').",
+            tag.clone()
+        );
+    }
     let cfg_file_opt = get_config_file(tag.clone());
     let cfg_file = match cfg_file_opt {
         Some(cfg_file) => {
-            println!(
-                "Config file for app \x1b[94m{:}\x1b[0m: \x1b[92m{:?}\x1b[0m.",
-                tag.clone(),
-                cfg_file
-            );
+            if wexe_dbg() {
+                println!(
+                    "\x1B[44mConfig file for app \x1b[94m{:}\x1b[0m\x1B[44m: \x1b[92m{:?}\x1b[0m.",
+                    tag.clone(),
+                    cfg_file
+                );
+            }
             cfg_file
         }
         None => {
@@ -38,17 +42,15 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
 
     let skip_count = if skip1 { 2 } else { 1 };
     let args: Vec<String> = env::args().skip(skip_count).collect();
-    // println!("There are {} args (after app name):", args.len());
-    // for arg in args.iter() {
-    //     println!("+ {}", arg);
-    // }
 
     let cfg = read_config_file(cfg_file);
-    println!(
-        "Config for app \x1b[94m{:}\x1b[0m: \x1b[92m{:?}\x1b[0m.",
-        tag.clone(),
-        cfg
-    );
+    if wexe_dbg() {
+        println!(
+            "\x1B[44mConfig for app \x1b[94m{:}\x1b[0m\x1B[44m: \x1b[92m{:?}\x1b[0m.",
+            tag.clone(),
+            cfg
+        );
+    }
 
     let mut extended_args: Vec<String> = Vec::new();
     extended_args.extend(cfg.args.prepend);
@@ -89,25 +91,36 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
         cmd.env(k, new_variable);
     }
 
-    println!("Running command: \x1b[92m{:?}\x1b[0m.", cmd);
+    if wexe_dbg() {
+        println!("\x1B[44mRunning command: \x1b[92m{:?}\x1b[0m.", cmd);
+    }
 
     let status = cmd.status();
     match status {
         Ok(status) => {
             if status.success() {
-                println!("Command succeeded with exit code: \x1b[92m0\x1b[0m.");
+                if wexe_dbg() {
+                    println!("\x1B[44mCommand succeeded with exit code: \x1b[92m0\x1b[0m.");
+                }
             } else {
                 match status.code() {
                     Some(code) => {
-                        println!("Command returned exit code: \x1b[91m{:}\x1b[0m.", code)
+                        if wexe_dbg() {
+                            println!(
+                                "\x1B[44mCommand returned exit code: \x1b[91m{:}\x1b[0m.",
+                                code
+                            )
+                        }
                     }
-                    None => println!("Command failed with no exit code (terminated by signal)."),
+                    None => println!(
+                        "\x1B[44mCommand failed with no exit code (terminated by signal)\x1b[0m."
+                    ),
                 }
             }
             Ok(())
         }
         Err(e) => {
-            println!("Command failed with error: \x1b[91m{:?}\x1b[0m.", e);
+            println!("\x1b[0mCommand failed with error: \x1b[91m{:?}\x1b[0m.", e);
             Err(Box::new(e))
         }
     }
@@ -125,7 +138,7 @@ fn run_wexe() -> Result<(), Box<dyn Error>> {
         }
         None => (),
     };
-    println!("Running in non-redirect mode (wexe manager).");
+    println!("\x1B[44mRunning in non-redirect mode (wexe manager)\x1b[0m.");
     Ok(())
 }
 
