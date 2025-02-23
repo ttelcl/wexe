@@ -6,7 +6,7 @@ use std::{error::Error, path::PathBuf};
 
 use config_model::{get_config_file, read_config_file, wexe_dbg};
 
-fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
+fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
     if tag == "wexe" {
         panic!("To prevent infinite recursion, 'wexe' is rejected as app name.");
     }
@@ -117,7 +117,7 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
                     ),
                 }
             }
-            Ok(())
+            Ok(status.code().unwrap_or(0))  
         }
         Err(e) => {
             println!("\x1b[0mCommand failed with error: \x1b[91m{:?}\x1b[0m.", e);
@@ -126,7 +126,7 @@ fn run_app(tag: String, skip1: bool) -> Result<(), Box<dyn Error>> {
     }
 }
 
-fn run_wexe() -> Result<(), Box<dyn Error>> {
+fn run_wexe() -> Result<i32, Box<dyn Error>> {
     let first_arg = env::args().nth(1);
     match first_arg {
         Some(tag) => {
@@ -138,11 +138,11 @@ fn run_wexe() -> Result<(), Box<dyn Error>> {
         }
         None => (),
     };
-    println!("\x1B[44mRunning in non-redirect mode (wexe manager)\x1b[0m.");
-    Ok(())
+    println!("\x1B[44mRunning in non-redirect mode (wexe manager)\x1b[0m. \x1B[41mNYI\x1b[0m!");
+    Ok(0)
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main0() -> Result<i32, Box<dyn Error>> {
     // let wexe_cfg_dir = get_wexe_cfg_dir();
     // println!("Central Config directory: \x1b[93m{:?}\x1b[0m.", wexe_cfg_dir);
 
@@ -157,5 +157,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     } else {
         // the application has been renamed
         run_app(tag, false)
+    }
+}
+
+fn main() {
+    let result = main0();
+    match result {
+        Ok(code) => std::process::exit(code),
+        Err(e) => {
+            println!("\x1b[91mError: {:?}\x1b[0m.", e);
+            std::process::exit(1);
+        }
     }
 }
