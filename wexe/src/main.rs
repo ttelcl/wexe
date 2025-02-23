@@ -3,6 +3,8 @@ mod config_model;
 use std::env;
 use std::process::Command;
 use std::{error::Error, path::PathBuf};
+use std::process::Termination;
+// use std::os::windows::process::ExitCodeExt; // not yet stable :(
 
 use config_model::{get_config_file, read_config_file, wexe_dbg};
 
@@ -142,7 +144,7 @@ fn run_wexe() -> Result<i32, Box<dyn Error>> {
     Ok(0)
 }
 
-fn main0() -> Result<i32, Box<dyn Error>> {
+fn mainmain() -> Result<i32, Box<dyn Error>> {
     // let wexe_cfg_dir = get_wexe_cfg_dir();
     // println!("Central Config directory: \x1b[93m{:?}\x1b[0m.", wexe_cfg_dir);
 
@@ -161,11 +163,19 @@ fn main0() -> Result<i32, Box<dyn Error>> {
 }
 
 fn main() {
-    let result = main0();
+    // Small wrapper to catch errors and print them. And support returning an exit code
+    // outside the 0-255 range.
+    let result = mainmain();
     match result {
-        Ok(code) => std::process::exit(code),
+        Ok(code) => {
+            // println!("\x1b[92mSuccess with code {code}.\x1b[0m");
+            std::process::exit(code)
+        },
         Err(e) => {
-            println!("\x1b[91mError: {:?}\x1b[0m.", e);
+            // println!("\x1b[91mFailed.\x1b[0m");
+            let result2: Result<(), Box<dyn Error>> = Err(e);
+            let _exitcode = result2.report();
+            // println!("\x1b[91mError: {:?}\x1b[0m.", e);
             std::process::exit(1);
         }
     }
