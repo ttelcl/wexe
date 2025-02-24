@@ -1,5 +1,137 @@
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
+// String constants for console colors and styling
+
+#![allow(dead_code)]
+#![allow(non_upper_case_globals)]
+
+/// Reset all console styling (foreground, background, effects).
+pub const rst: &str = stl::reset;
+
+/// Bold
+pub const stl_b: &str = stl::bold;
+
+/// Dim
+pub const stl_d: &str = stl::dim;
+
+/// Italic
+pub const stl_i: &str = stl::italic;
+
+/// Underline
+pub const stl_u: &str = stl::underline;
+
+/// strikethrough
+pub const stl_s: &str = stl::strike;
+
+/// Cancels dim or bold
+pub const stl_n: &str = stl::normal_itensity;
+
+/// Foreground black
+pub const fg_K: &str = fg::black;
+
+/// Foreground dark red
+pub const fg_R: &str = fg::dark_red;
+
+/// Foreground dark green
+pub const fg_G: &str = fg::dark_green;
+
+/// Foreground dark yellow (orange-ish)
+pub const fg_Y: &str = fg::dark_yellow;
+
+/// Foreground dark blue
+pub const fg_B: &str = fg::dark_blue;
+
+/// Foreground dark magenta
+pub const fg_M: &str = fg::dark_magenta;
+
+/// Foreground dark cyan
+pub const fg_C: &str = fg::dark_cyan;
+
+/// Foreground light gray ("dark white")
+pub const fg_W: &str = fg::light_gray;
+
+/// Foreground dark gray ("light black")
+pub const fg_k: &str = fg::dark_gray;
+
+/// Foreground light red
+pub const fg_r: &str = fg::red;
+
+/// Foreground light green
+pub const fg_g: &str = fg::green;
+
+/// Foreground light yellow
+pub const fg_y: &str = fg::yellow;
+
+/// Foreground light blue
+pub const fg_b: &str = fg::blue;
+
+/// Foreground light magenta
+pub const fg_m: &str = fg::magenta;
+
+/// Foreground light cyan
+pub const fg_c: &str = fg::cyan;
+
+/// Foreground white
+pub const fg_w: &str = fg::white;
+
+/// Foreground orange-ish ("dark yellow")
+pub const fg_O: &str = fg::dark_yellow;
+
+/// Foreground orange-ish ("dark yellow")
+pub const fg_o: &str = fg::dark_yellow;
+
+/// Background black
+pub const bg_K: &str = bg::black;
+
+/// Background dark red
+pub const bg_R: &str = bg::dark_red;
+
+/// Background dark green
+pub const bg_G: &str = bg::dark_green;
+
+/// Background dark yellow (orange-ish)
+pub const bg_Y: &str = bg::dark_yellow;
+
+/// Background dark blue
+pub const bg_B: &str = bg::dark_blue;
+
+/// Background dark magenta
+pub const bg_M: &str = bg::dark_magenta;
+
+/// Background dark cyan
+pub const bg_C: &str = bg::dark_cyan;
+
+/// Background light gray ("dark white")
+pub const bg_W: &str = bg::light_gray;
+
+/// Background dark gray ("light black")
+pub const bg_k: &str = bg::dark_gray;
+
+/// Background light red
+pub const bg_r: &str = bg::red;
+
+/// Background light green
+pub const bg_g: &str = bg::green;
+
+/// Background light yellow
+pub const bg_y: &str = bg::yellow;
+
+/// Background light blue
+pub const bg_b: &str = bg::blue;
+
+/// Background light magenta
+pub const bg_m: &str = bg::magenta;
+
+/// Background light cyan
+pub const bg_c: &str = bg::cyan;
+
+/// Background white
+pub const bg_w: &str = bg::white;
+
+/// Background orange-ish ("dark yellow")
+pub const bg_O: &str = bg::dark_yellow;
+
+/// Background orange-ish ("dark yellow")
+pub const bg_o: &str = bg::dark_yellow;
+
 /// Console effects other than colors
 pub mod stl {
     pub const reset: &str = "\x1B[0m";
@@ -13,8 +145,6 @@ pub mod stl {
     pub const normal_itensity: &str = "\x1B[22m";
 }
 
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
 /// Foreground colors
 pub mod fg {
     pub const black: &str = "\x1B[30m";
@@ -36,8 +166,6 @@ pub mod fg {
     pub const white: &str = "\x1B[97m";
 }
 
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
 /// Background colors
 pub mod bg {
 
@@ -82,182 +210,3 @@ pub mod bg {
     pub const O: &str = orange;
     pub const o: &str = orange;
 }
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-/// Reset all console styling (foreground, background, effects).
-pub const rst: &str = stl::reset;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-/// Bold
-pub const stl_b: &str = stl::bold;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-/// Dim
-pub const stl_d: &str = stl::dim;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-/// Italic
-pub const stl_i: &str = stl::italic;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-/// Underline
-pub const stl_u: &str = stl::underline;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-/// strikethrough
-pub const stl_s: &str = stl::strike;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-/// Cancels dim or bold
-pub const stl_n: &str = stl::normal_itensity;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_K: &str = fg::black;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_R: &str = fg::dark_red;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_G: &str = fg::dark_green;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_Y: &str = fg::dark_yellow;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_B: &str = fg::dark_blue;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_M: &str = fg::dark_magenta;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_C: &str = fg::dark_cyan;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_W: &str = fg::light_gray;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_k: &str = fg::dark_gray;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_r: &str = fg::red;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_g: &str = fg::green;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_y: &str = fg::yellow;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_b: &str = fg::blue;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_m: &str = fg::magenta;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_c: &str = fg::cyan;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_w: &str = fg::white;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_O: &str = fg::dark_yellow;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const fg_o: &str = fg::dark_yellow;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_K: &str = bg::black;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_R: &str = bg::dark_red;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_G: &str = bg::dark_green;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_Y: &str = bg::dark_yellow;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_B: &str = bg::dark_blue;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_M: &str = bg::dark_magenta;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_C: &str = bg::dark_cyan;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_W: &str = bg::light_gray;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_k: &str = bg::dark_gray;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_r: &str = bg::red;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_g: &str = bg::green;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_y: &str = bg::yellow;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_b: &str = bg::blue;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_m: &str = bg::magenta;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_c: &str = bg::cyan;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_w: &str = bg::white;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_O: &str = bg::dark_yellow;
-
-#[allow(dead_code)]
-#[allow(non_upper_case_globals)]
-pub const bg_o: &str = bg::dark_yellow;
