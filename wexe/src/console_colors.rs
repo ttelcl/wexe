@@ -1,4 +1,5 @@
-// String constants for console colors and styling
+// String constants for console colors and styling.
+// See https://en.wikipedia.org/wiki/ANSI_escape_code#Select_Graphic_Rendition_parameters
 
 #![allow(dead_code)]
 #![allow(non_upper_case_globals)]
