@@ -4,24 +4,27 @@ use std::collections::HashMap;
 use std::env;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
+use super::console_colors::*;
 use toml;
+
+
 
 lazy_static! {
     static ref WEXE_DEBUG: bool = {
         match env::var("WEXE_DEBUG") {
             Ok(val) => {
                 if val == "1" {
-                    println!("\x1B[44m\x1B[4m\x1b[91mWEXE_DEBUG is ON (1)\x1b[0m.");
+                    eprintln!("{bg_B}{stl_u}{fg_r}WEXE_DEBUG is ON (1){rst}.");
                     true
                 } else {
-                    println!("\x1B[44m\x1B[4mWEXE_DEBUG is Off (not 1)\x1b[0m.");
+                    eprintln!("{bg_B}{stl_u}WEXE_DEBUG is Off (not 1){rst}.");
                     false
                 }
             }
             Err(_) => {
                 #[cfg(debug_assertions)]
                 {
-                    println!("\x1B[44m\x1B[4m\x1b[91mWEXE_DEBUG is ON (WEXE_DEBUG not set, but debug build)\x1b[0m.");
+                    eprintln!("{bg_B}{stl_u}{fg_r}WEXE_DEBUG is ON (WEXE_DEBUG not set, but debug build){rst}.");
                     true
                 }
                 #[cfg(not(debug_assertions))]

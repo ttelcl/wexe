@@ -16,8 +16,8 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
     }
 
     if wexe_dbg() {
-        println!(
-            "\x1B[44mRunning in redirect mode (app '\x1b[92m{}\x1b[0m').",
+        eprintln!(
+            "{bg_B}Running in redirect mode (app '{fg_g}{}{rst}{bg_B}'){rst}.",
             tag.clone()
         );
     }
@@ -25,8 +25,8 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
     let cfg_file = match cfg_file_opt {
         Some(cfg_file) => {
             if wexe_dbg() {
-                println!(
-                    "\x1B[44mConfig file for app \x1b[94m{:}\x1b[0m\x1B[44m: \x1b[92m{:?}\x1b[0m.",
+                eprintln!(
+                    "{bg_B}Config file for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:?}{rst}.",
                     tag.clone(),
                     cfg_file
                 );
@@ -34,8 +34,8 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
             cfg_file
         }
         None => {
-            println!(
-                "No config file found for app '\x1b[91m{:}\x1b[0m'.",
+            eprintln!(
+                "{bg_B}No config file found for app '{fg_r}{:}{rst}{bg_B}'{rst}.",
                 tag.clone()
             );
             let error_text = format!("No configuration file for '{}'.", tag.clone());
@@ -50,7 +50,7 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
     let cfg = read_config_file(cfg_file);
     if wexe_dbg() {
         println!(
-            "\x1B[44mConfig for app \x1b[94m{:}\x1b[0m\x1B[44m: \x1b[92m{:?}\x1b[0m.",
+            "{bg_B}Config for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:?}{rst}.",
             tag.clone(),
             cfg
         );
@@ -60,10 +60,6 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
     extended_args.extend(cfg.args.prepend);
     extended_args.extend(args);
     extended_args.extend(cfg.args.append);
-    // println!("Expanded args:");
-    // for arg in extended_args.iter() {
-    //     println!("+ {}", arg);
-    // }
 
     let mut cmd = Command::new(cfg.target);
     cmd.args(extended_args);
@@ -91,12 +87,12 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
             .unwrap()
             .into_string()
             .unwrap();
-        // println!("Edited PATH-like variable \x1b[94m{:}\x1b[0m: \x1b[92m{:?}\x1b[0m.", k, &new_variable);
+        // eprintln!("Edited PATH-like variable {fg_b}{:}{rst}: {fg_g}{:?}{rst}.", k, &new_variable);
         cmd.env(k, new_variable);
     }
 
     if wexe_dbg() {
-        println!("\x1B[44mRunning command: \x1b[92m{:?}\x1b[0m.", cmd);
+        println!("{bg_B}Running command: {fg_g}{:?}{rst}.", cmd);
     }
 
     let status = cmd.status();
@@ -104,27 +100,27 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
         Ok(status) => {
             if status.success() {
                 if wexe_dbg() {
-                    println!("\x1B[44mCommand succeeded with exit code: \x1b[92m0\x1b[0m.");
+                    eprintln!("{bg_B}Command succeeded with exit code: {fg_g}0{rst}.");
                 }
             } else {
                 match status.code() {
                     Some(code) => {
                         if wexe_dbg() {
-                            println!(
-                                "\x1B[44mCommand returned exit code: \x1b[91m{:}\x1b[0m.",
+                            eprintln!(
+                                "{bg_B}Command returned exit code: {fg_r}{:}{rst}.",
                                 code
                             )
                         }
                     }
-                    None => println!(
-                        "\x1B[44mCommand failed with no exit code (terminated by signal)\x1b[0m."
+                    None => eprintln!(
+                        "{bg_B}Command failed with no exit code (terminated by signal){rst}."
                     ),
                 }
             }
             Ok(status.code().unwrap_or(0))
         }
         Err(e) => {
-            println!("\x1b[0mCommand failed with error: \x1b[91m{:?}\x1b[0m.", e);
+            println!("{rst}Command failed with error: {fg_r}{:?}{rst}.", e);
             Err(Box::new(e))
         }
     }
@@ -134,7 +130,6 @@ fn run_wexe() -> Result<i32, Box<dyn Error>> {
     let first_arg = env::args().nth(1);
     match first_arg {
         Some(tag) => {
-            // println!("Tag 2: \x1b[91m{:?}\x1b[0m.", tag);
             if !tag.starts_with("-") && !tag.starts_with("/") && !tag.starts_with("+") {
                 // alternative redirect mode syntax
                 return run_app(tag, true);
@@ -142,18 +137,13 @@ fn run_wexe() -> Result<i32, Box<dyn Error>> {
         }
         None => (),
     };
-    println!("\x1B[44mRunning in non-redirect mode (wexe manager)\x1b[0m. \x1B[41mNYI\x1b[0m!");
+    eprintln!("{bg_B}Running in non-redirect mode (wexe manager){rst}. {bg_R}NYI{rst}!");
     Ok(0)
 }
 
 fn mainmain() -> Result<i32, Box<dyn Error>> {
-    // let wexe_cfg_dir = get_wexe_cfg_dir();
-    // println!("Central Config directory: \x1b[93m{:?}\x1b[0m.", wexe_cfg_dir);
-
     let exe = env::current_exe()?;
-    // println!("Current executable: \x1b[92m{:?}\x1b[0m.", exe);
     let tag = exe.file_stem().unwrap().to_str().unwrap().to_lowercase();
-    // println!("Tag: \x1b[94m{:?}\x1b[0m.", tag);
 
     if tag == "wexe" {
         // the original application name (not renamed)
@@ -165,23 +155,21 @@ fn mainmain() -> Result<i32, Box<dyn Error>> {
 }
 
 fn main() {
-    println!("{fg_g}{stl_d}This{stl_n} {fg_G}This {stl_d}This{rst}{fg_g} is {fg_y}a {stl_b}colorful {fg_o}{stl_b}a{stl_n} {stl_i}color{rst} {stl_s}and{rst} {stl_b}style{stl_n} {stl_u}test{rst}!");
-    const WILD: &str = "\x1B[38;2;255;128;64m";
-    println!("A really {WILD}wild{rst} color!");
-
     // Small wrapper to catch errors and print them. And support returning an exit code
     // outside the 0-255 range.
     let result = mainmain();
     match result {
         Ok(code) => {
-            // println!("\x1b[92mSuccess with code {code}.\x1b[0m");
+            // eprintln!("{bg_B}{fg_g}Success with code {code}.{rst}");
             std::process::exit(code)
         }
         Err(e) => {
-            // println!("\x1b[91mFailed.\x1b[0m");
+            // eprintln!("{bg_B}{fg_r}Failed.{rst}");
             let result2: Result<(), Box<dyn Error>> = Err(e);
+            // Lets not colorize the report, avoiding the risk of not reseting the colors.
+            // eprint!("{bg_B}");
             let _exitcode = result2.report();
-            // println!("\x1b[91mError: {:?}\x1b[0m.", e);
+            // eprint!("{rst}");
             std::process::exit(1);
         }
     }
