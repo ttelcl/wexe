@@ -1,5 +1,6 @@
 use crate::console_colors::*;
 use lazy_static::lazy_static;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
@@ -54,6 +55,7 @@ lazy_static! {
             wexe_bin_dir: user_cfg_bin_dir,
         }
     };
+    static ref APP_TAG_REGEX: Regex = Regex::new(r"^[a-z][a-z0-9]*([-_][a-z0-9]+)*$").unwrap();
 }
 
 /// Returns true if the wexe debug flag is set.
@@ -63,6 +65,11 @@ lazy_static! {
 /// True if the wexe debug flag is set.
 pub fn wexe_dbg() -> bool {
     *WEXE_DEBUG
+}
+
+/// Returns true if the given tag is a valid wexe application tag.
+pub fn is_valid_app_tag(tag: &str) -> bool {
+    APP_TAG_REGEX.is_match(tag)
 }
 
 /// Get the path to the wexe configuration directory in the user's local config directory.
@@ -95,6 +102,9 @@ pub fn get_wexe_cfg_bin_dir() -> PathBuf {
 /// # Returns
 /// The path to the configuration file, or None if no such file exists.
 pub fn get_config_file(tag: String) -> Option<PathBuf> {
+    if !is_valid_app_tag(&tag) {
+        panic!("Invalid application tag: {}", tag);
+    }
     let exe = env::current_exe().unwrap();
     let folder = exe.parent().unwrap();
     let cfg_file = folder.join(tag.clone() + ".toml");

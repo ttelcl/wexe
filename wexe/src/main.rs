@@ -4,7 +4,7 @@ use std::process::Termination;
 use std::{error::Error, path::PathBuf};
 // use std::os::windows::process::ExitCodeExt; // not yet stable :(
 
-use wexe::config_model::{WexeApp, get_config_file, read_config_file, wexe_dbg};
+use wexe::config_model::{WexeApp, get_config_file, is_valid_app_tag, read_config_file, wexe_dbg};
 use wexe::console_colors::*;
 
 fn run_app_raw(args: Vec<String>, cfg: WexeApp) -> Result<i32, Box<dyn Error>> {
@@ -106,6 +106,15 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
             }
             cfg
         } else {
+            if !is_valid_app_tag(&tag) {
+                eprintln!(
+                    "{bg_B}Invalid application tag '{fg_r}{:}{rst}{bg_B}'{rst}.",
+                    tag.clone()
+                );
+                let error_text = format!("Invalid app tag '{}'.", tag.clone());
+                let error = std::io::Error::new(std::io::ErrorKind::InvalidInput, error_text);
+                return Err(Box::new(error));
+            }
             let cfg_file_opt = get_config_file(tag.clone());
             let cfg_file = match cfg_file_opt {
                 Some(cfg_file) => {
