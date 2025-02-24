@@ -1,5 +1,4 @@
 mod config_model;
-mod console_colors;
 
 use std::env;
 use std::process::Command;
@@ -8,7 +7,7 @@ use std::{error::Error, path::PathBuf};
 // use std::os::windows::process::ExitCodeExt; // not yet stable :(
 
 use config_model::{get_config_file, read_config_file, wexe_dbg};
-use console_colors::*;
+use wexe::console_colors::*;
 
 fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
     if tag == "wexe" {
