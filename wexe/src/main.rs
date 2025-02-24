@@ -1,12 +1,14 @@
 mod config_model;
+mod console_colors;
 
 use std::env;
 use std::process::Command;
-use std::{error::Error, path::PathBuf};
 use std::process::Termination;
+use std::{error::Error, path::PathBuf};
 // use std::os::windows::process::ExitCodeExt; // not yet stable :(
 
 use config_model::{get_config_file, read_config_file, wexe_dbg};
+use console_colors::*;
 
 fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
     if tag == "wexe" {
@@ -119,7 +121,7 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
                     ),
                 }
             }
-            Ok(status.code().unwrap_or(0))  
+            Ok(status.code().unwrap_or(0))
         }
         Err(e) => {
             println!("\x1b[0mCommand failed with error: \x1b[91m{:?}\x1b[0m.", e);
@@ -163,6 +165,10 @@ fn mainmain() -> Result<i32, Box<dyn Error>> {
 }
 
 fn main() {
+    println!("{fg_g}{stl_d}This{stl_n} {fg_G}This {stl_d}This{rst}{fg_g} is {fg_y}a {stl_b}colorful {fg_o}{stl_b}a{stl_n} {stl_i}color{rst} {stl_s}and{rst} {stl_b}style{stl_n} {stl_u}test{rst}!");
+    const WILD: &str = "\x1B[38;2;255;128;64m";
+    println!("A really {WILD}wild{rst} color!");
+
     // Small wrapper to catch errors and print them. And support returning an exit code
     // outside the 0-255 range.
     let result = mainmain();
@@ -170,7 +176,7 @@ fn main() {
         Ok(code) => {
             // println!("\x1b[92mSuccess with code {code}.\x1b[0m");
             std::process::exit(code)
-        },
+        }
         Err(e) => {
             // println!("\x1b[91mFailed.\x1b[0m");
             let result2: Result<(), Box<dyn Error>> = Err(e);
