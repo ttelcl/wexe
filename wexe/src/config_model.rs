@@ -1,11 +1,11 @@
+use crate::console_colors::*;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
-use std::fs::create_dir_all;
+use std::fs;
 use std::path::{Path, PathBuf};
 use toml;
-use wexe::console_colors::*;
 
 lazy_static! {
     static ref WEXE_DEBUG: bool = {
@@ -36,18 +36,33 @@ lazy_static! {
     };
 }
 
+/// Returns true if the wexe debug flag is set.
+/// This is set if the environment variable WEXE_DEBUG is set to "1",
+/// or if the program is built in debug mode and WEXE_DEBUG is not set.
+/// # Returns
+/// True if the wexe debug flag is set.
 pub fn wexe_dbg() -> bool {
     *WEXE_DEBUG
 }
 
+/// Get the path to the wexe configuration directory in the user's local config directory.
+/// Creates the directory if it does not exist yet.
+/// # Returns
+/// The path to the .wexe configuration directory.
 pub fn get_wexe_cfg_dir() -> PathBuf {
     let mut user_cfg_dir =
         dirs::config_local_dir().expect("This system has no local config directory.");
     user_cfg_dir.push(".wexe");
-    create_dir_all(user_cfg_dir.as_path()).expect("Could not create the .wexe config directory.");
+    fs::create_dir_all(user_cfg_dir.as_path())
+        .expect("Could not create the .wexe config directory.");
     user_cfg_dir
 }
 
+/// Get the path to a configuration file for a given tag, or None if no such file exists.
+/// # Arguments
+/// * `tag` - The tag to use to find the configuration file.
+/// # Returns
+/// The path to the configuration file, or None if no such file exists.
 pub fn get_config_file(tag: String) -> Option<PathBuf> {
     let exe = env::current_exe().unwrap();
     let folder = exe.parent().unwrap();
@@ -63,27 +78,40 @@ pub fn get_config_file(tag: String) -> Option<PathBuf> {
     None
 }
 
-// Top level configuration file model
+/// Top level configuration file model. This models the actual content of the
+/// configuration file, including some optional parts.
+/// See the [WexeApp] struct for the disambiguated model.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct WexeAppConfig {
+    /// The target executable to run
+    // ((currently required; may be optional in the future once we get 'include' implemented))
     pub target: String,
+    /// Environment variable related sections
     pub env: Option<ConfigEnv>,
+    /// Arguments to prepend and append to the command line
     pub args: Option<ConfigArgs>,
 }
 
+/// Optional lists of elements to prepend or append to some existing string list
+/// (be they the arguments list or a PATH-like environment variable).
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfigArgs {
     pub prepend: Option<Vec<String>>,
     pub append: Option<Vec<String>>,
 }
 
-// Models the "env" section of the configuration file
+/// Models the "env" section of the configuration file
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfigEnv {
+    /// Environment variables to set, override, or delete.
+    /// An environment variable is deleted if its value is an empty string.
     pub set: Option<HashMap<String, String>>,
+    /// Sections for mofifying PATH-like environment variables.
     pub pathlike: Option<HashMap<String, ConfigArgs>>,
 }
 
+/// Lists of elements to prepend or append to some existing string list
+/// (be they the arguments list or a PATH-like environment variable).
 #[derive(Debug, Serialize)]
 pub struct ListOps {
     // elements to prepend to the list
@@ -92,19 +120,26 @@ pub struct ListOps {
     pub append: Vec<String>,
 }
 
-// The disambiguated Wexe Application configuration model
+/// The disambiguated Wexe Application configuration model, derived from the
+/// [WexeAppConfig] model described by the TOML configuration file.
 #[derive(Debug, Serialize)]
 pub struct WexeApp {
-    // The target executable to run
+    /// The target executable to run
     pub target: String,
-    // Arguments to prepend and append to the command line
+    /// Arguments to prepend and append to the command line
     pub args: ListOps,
-    // Environment variables to set, override, or delete
+    /// Environment variables to set, override, or delete
     pub env_set: HashMap<String, String>,
-    // Prepending or appending elements to environment variables that are PATH-like
+    /// Prepending or appending elements to environment variables that are PATH-like
+    /// Prepending or appending uses an operating-system-specific separator.
     pub env_pathlike: HashMap<String, ListOps>,
 }
 
+/// Read a TOML wexe configuration file and return a disambiguated [WexeApp] model for it.
+/// # Arguments
+/// * `cfg_file` - The path to the configuration file to read.
+/// # Returns
+/// A [WexeApp] model derived from the configuration file.
 pub fn read_config_file(cfg_file: PathBuf) -> WexeApp {
     let cfg_text = std::fs::read_to_string(cfg_file).expect("Could not read the config file.");
     let cfg: WexeAppConfig = toml::from_str(&cfg_text).expect("Could not parse the config file.");

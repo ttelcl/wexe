@@ -1,7 +1,5 @@
 use wexe::console_colors::*;
-use wexe::hi;
 
 fn main() {
-    println!("Hello, {fg_g}wexecfg{rst}!");
-    hi();
+    println!("Hello, {fg_g}wexecfg{rst}! ({stl_i}{stl_d}Not yet implemented{rst})");
 }
