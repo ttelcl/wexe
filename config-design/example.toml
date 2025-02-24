@@ -14,19 +14,17 @@ prepend = [ "arg1", "arg2" ]
 append = [ "arg98", "arg99" ]
 
 # This is the top level environment variables section.
-# It has some subsections below but only directly contains
-# some subcommands that don't take a key+value.
+# It has some subsections below but does not directly contain
+# values itself.
 [env]
-# Delete the "BAR" and "BAZ" environment variables, if they exist
-delete = [ 
-  "BAR",
-  "BAZ",
-]
 
-# This is the environment variables override / add subsection.
+# This is the environment variables override / add / delete subsection.
+# To delete environment variables set them to an empty string.
 [env.set]
 # Set the "FOO" environment variable to "bar" (overriding it or setting it).
 FOO = "bar"
+# Delete the "BAZ" environment variable.
+BAZ = ""
 
 # This section has subsections for appending and prepending to path-like
 # environment variables. It doesn't directly contain any key+value pairs.

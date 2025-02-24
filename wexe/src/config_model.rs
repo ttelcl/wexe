@@ -7,8 +7,6 @@ use std::path::{Path, PathBuf};
 use super::console_colors::*;
 use toml;
 
-
-
 lazy_static! {
     static ref WEXE_DEBUG: bool = {
         match env::var("WEXE_DEBUG") {
@@ -81,7 +79,6 @@ pub struct ConfigArgs {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ConfigEnv {
     pub set: Option<HashMap<String, String>>,
-    pub delete: Option<Vec<String>>,
     pub pathlike: Option<HashMap<String, ConfigArgs>>,
 }
 
@@ -100,10 +97,8 @@ pub struct WexeApp {
     pub target: String,
     // Arguments to prepend and append to the command line
     pub args: ListOps,
-    // Environment variables to set or override
+    // Environment variables to set, override, or delete
     pub env_set: HashMap<String, String>,
-    // Environment variables to delete
-    pub env_delete: Vec<String>,
     // Prepending or appending elements to environment variables that are PATH-like
     pub env_pathlike: HashMap<String, ListOps>,
 }
@@ -113,7 +108,6 @@ pub fn read_config_file(cfg_file: PathBuf) -> WexeApp {
     let cfg: WexeAppConfig = toml::from_str(&cfg_text).expect("Could not parse the config file.");
     let env = cfg.env.unwrap_or(ConfigEnv {
         set: None,
-        delete: None,
         pathlike: None,
     });
     let env_pathlike = env.pathlike.unwrap_or(HashMap::new());
@@ -140,7 +134,6 @@ pub fn read_config_file(cfg_file: PathBuf) -> WexeApp {
         target: target.to_str().unwrap().to_string(),
         args: arg_ops,
         env_set: env.set.unwrap_or(HashMap::new()),
-        env_delete: env.delete.unwrap_or(Vec::new()),
         env_pathlike: env_pathlike_ops,
     };
     if !target.is_absolute() {

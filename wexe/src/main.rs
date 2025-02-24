@@ -63,12 +63,14 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
 
     let mut cmd = Command::new(cfg.target);
     cmd.args(extended_args);
-
-    for delenv in cfg.env_delete.iter() {
-        cmd.env_remove(delenv);
-    }
     for (k, v) in cfg.env_set.iter() {
-        cmd.env(k, v);
+        if v.is_empty() {
+            // eprintln!("{bg_B}Removing env variable {fg_o}{:}{rst}.", k);
+            cmd.env_remove(k);
+        } else {
+            // eprintln!("{bg_B}Setting env variable {fg_o}{:}{rst} to {fg_g}{:?}{rst}.", k, v);
+            cmd.env(k, v);
+        }
     }
     for (k, v) in cfg.env_pathlike.iter() {
         let originals: Vec<PathBuf> = {
@@ -87,7 +89,7 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
             .unwrap()
             .into_string()
             .unwrap();
-        // eprintln!("Edited PATH-like variable {fg_b}{:}{rst}: {fg_g}{:?}{rst}.", k, &new_variable);
+        // eprintln!("{bg_B}Edited PATH-like variable {fg_o}{:}{rst}: {fg_g}{:?}{rst}.", k, &new_variable);
         cmd.env(k, new_variable);
     }
 
