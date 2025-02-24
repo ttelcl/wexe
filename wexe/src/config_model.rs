@@ -7,6 +7,11 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use toml;
 
+pub struct WexeConfigFolders {
+    pub wexe_cfg_dir: PathBuf,
+    pub wexe_bin_dir: PathBuf,
+}
+
 lazy_static! {
     static ref WEXE_DEBUG: bool = {
         match env::var("WEXE_DEBUG") {
@@ -34,6 +39,21 @@ lazy_static! {
             }
         }
     };
+    static ref WEXE_CFG_FOLDERS: WexeConfigFolders = {
+        let mut user_cfg_dir =
+            dirs::config_local_dir().expect("This system has no local config directory.");
+        user_cfg_dir.push(".wexe");
+        fs::create_dir_all(user_cfg_dir.as_path())
+            .expect("Could not create the .wexe config directory.");
+        let mut user_cfg_bin_dir = user_cfg_dir.clone();
+        user_cfg_bin_dir.push("bin");
+        fs::create_dir_all(user_cfg_bin_dir.as_path())
+            .expect("Could not create the .wexe/bin config directory.");
+        WexeConfigFolders {
+            wexe_cfg_dir: user_cfg_dir,
+            wexe_bin_dir: user_cfg_bin_dir,
+        }
+    };
 }
 
 /// Returns true if the wexe debug flag is set.
@@ -50,12 +70,23 @@ pub fn wexe_dbg() -> bool {
 /// # Returns
 /// The path to the .wexe configuration directory.
 pub fn get_wexe_cfg_dir() -> PathBuf {
-    let mut user_cfg_dir =
-        dirs::config_local_dir().expect("This system has no local config directory.");
-    user_cfg_dir.push(".wexe");
-    fs::create_dir_all(user_cfg_dir.as_path())
-        .expect("Could not create the .wexe config directory.");
-    user_cfg_dir
+    // let mut user_cfg_dir =
+    //     dirs::config_local_dir().expect("This system has no local config directory.");
+    // user_cfg_dir.push(".wexe");
+    // fs::create_dir_all(user_cfg_dir.as_path())
+    //     .expect("Could not create the .wexe config directory.");
+    // let mut user_cfg_bin_dir = user_cfg_dir.clone();
+    // user_cfg_bin_dir.push("bin");
+    // fs::create_dir_all(user_cfg_bin_dir.as_path())
+    //     .expect("Could not create the .wexe/bin config directory.");
+    // user_cfg_dir
+    WEXE_CFG_FOLDERS.wexe_cfg_dir.clone()
+}
+
+/// Get the path to the wexe binary folder (creating it if it does not exist).
+/// This is the folder where the original wexe.exe and wexecfg.exe are installed.
+pub fn get_wexe_cfg_bin_dir() -> PathBuf {
+    WEXE_CFG_FOLDERS.wexe_bin_dir.clone()
 }
 
 /// Get the path to a configuration file for a given tag, or None if no such file exists.
@@ -183,4 +214,34 @@ pub fn read_config_file(cfg_file: PathBuf) -> WexeApp {
         panic!("Target executable does not exist: {:?}", appdef.target);
     }
     appdef
+}
+
+/// Get the configuration file for the wexecfg application. This configuration is
+/// hardcoded here, derived from the wexe executable location.
+pub fn wexecfg_config_file() -> WexeApp {
+    let exe = env::current_exe().expect("Could not get the current executable path.");
+    let folder = exe
+        .parent()
+        .expect("Could not get the executable's parent folder.");
+    let extension = exe.extension();
+    let wexecfg_file_name = match extension {
+        Some(ext) => format!("wexecfg.{}", ext.to_str().unwrap()),
+        None => "wexecfg".to_string(),
+    };
+    let wexecfg_path = folder.join(wexecfg_file_name);
+    if !wexecfg_path.exists() {
+        panic!(
+            "Could not find the wexecfg executable file: {:?}",
+            wexecfg_path
+        );
+    }
+    WexeApp {
+        target: wexecfg_path.to_str().unwrap().to_string(),
+        args: ListOps {
+            prepend: Vec::new(),
+            append: Vec::new(),
+        },
+        env_set: HashMap::new(),
+        env_pathlike: HashMap::new(),
+    }
 }

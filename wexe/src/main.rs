@@ -4,55 +4,10 @@ use std::process::Termination;
 use std::{error::Error, path::PathBuf};
 // use std::os::windows::process::ExitCodeExt; // not yet stable :(
 
-use wexe::config_model::{get_config_file, read_config_file, wexe_dbg};
+use wexe::config_model::{WexeApp, get_config_file, read_config_file, wexe_dbg};
 use wexe::console_colors::*;
 
-fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
-    if tag == "wexe" {
-        panic!("To prevent infinite recursion, 'wexe' is rejected as app name.");
-    }
-
-    if wexe_dbg() {
-        eprintln!(
-            "{bg_B}Running in redirect mode (app '{fg_g}{}{rst}{bg_B}'){rst}.",
-            tag.clone()
-        );
-    }
-    let cfg_file_opt = get_config_file(tag.clone());
-    let cfg_file = match cfg_file_opt {
-        Some(cfg_file) => {
-            if wexe_dbg() {
-                eprintln!(
-                    "{bg_B}Config file for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:?}{rst}.",
-                    tag.clone(),
-                    cfg_file
-                );
-            }
-            cfg_file
-        }
-        None => {
-            eprintln!(
-                "{bg_B}No config file found for app '{fg_r}{:}{rst}{bg_B}'{rst}.",
-                tag.clone()
-            );
-            let error_text = format!("No configuration file for '{}'.", tag.clone());
-            let error = std::io::Error::new(std::io::ErrorKind::NotFound, error_text);
-            return Err(Box::new(error));
-        }
-    };
-
-    let skip_count = if skip1 { 2 } else { 1 };
-    let args: Vec<String> = env::args().skip(skip_count).collect();
-
-    let cfg = read_config_file(cfg_file);
-    if wexe_dbg() {
-        println!(
-            "{bg_B}Config for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:?}{rst}.",
-            tag.clone(),
-            cfg
-        );
-    }
-
+fn run_app_raw(args: Vec<String>, cfg: WexeApp) -> Result<i32, Box<dyn Error>> {
     let mut extended_args: Vec<String> = Vec::new();
     extended_args.extend(cfg.args.prepend);
     extended_args.extend(args);
@@ -105,10 +60,7 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
                 match status.code() {
                     Some(code) => {
                         if wexe_dbg() {
-                            eprintln!(
-                                "{bg_B}Command returned exit code: {fg_r}{:}{rst}.",
-                                code
-                            )
+                            eprintln!("{bg_B}Command returned exit code: {fg_r}{:}{rst}.", code)
                         }
                     }
                     None => eprintln!(
@@ -125,6 +77,73 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
     }
 }
 
+fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
+    let tag = tag.to_lowercase(); // force lower case app names
+    if tag == "wexe" {
+        panic!("To prevent infinite recursion, 'wexe' is rejected as app name.");
+    }
+
+    if wexe_dbg() {
+        eprintln!(
+            "{bg_B}Running in redirect mode (app '{fg_g}{}{rst}{bg_B}'){rst}.",
+            tag.clone()
+        );
+    }
+
+    let skip_count = if skip1 { 2 } else { 1 };
+    let args: Vec<String> = env::args().skip(skip_count).collect();
+
+    let cfg: WexeApp = {
+        if &tag == "wexecfg" {
+            // Use hard-coded configuration for wexecfg. wexe itself also gets
+            // redirected here, unless its first argument is a valid app name.
+            let cfg = wexe::config_model::wexecfg_config_file();
+            if wexe_dbg() {
+                eprintln!(
+                    "{bg_B}Using hardcoded config for app {fg_o}wexecfg{rst}{bg_B}: {fg_g}{:?}{rst}.",
+                    cfg
+                );
+            }
+            cfg
+        } else {
+            let cfg_file_opt = get_config_file(tag.clone());
+            let cfg_file = match cfg_file_opt {
+                Some(cfg_file) => {
+                    if wexe_dbg() {
+                        eprintln!(
+                            "{bg_B}Config file for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:?}{rst}.",
+                            tag.clone(),
+                            cfg_file
+                        );
+                    }
+                    cfg_file
+                }
+                None => {
+                    eprintln!(
+                        "{bg_B}No config file found for app '{fg_r}{:}{rst}{bg_B}'{rst}.",
+                        tag.clone()
+                    );
+                    let error_text = format!("No configuration file for '{}'.", tag.clone());
+                    let error = std::io::Error::new(std::io::ErrorKind::NotFound, error_text);
+                    return Err(Box::new(error));
+                }
+            };
+
+            let cfg = read_config_file(cfg_file);
+            if wexe_dbg() {
+                println!(
+                    "{bg_B}Config for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:?}{rst}.",
+                    tag.clone(),
+                    cfg
+                );
+            }
+            cfg
+        }
+    };
+
+    run_app_raw(args, cfg)
+}
+
 fn run_wexe() -> Result<i32, Box<dyn Error>> {
     let first_arg = env::args().nth(1);
     match first_arg {
@@ -136,8 +155,10 @@ fn run_wexe() -> Result<i32, Box<dyn Error>> {
         }
         None => (),
     };
-    eprintln!("{bg_B}Running in non-redirect mode (wexe manager){rst}. {bg_R}NYI{rst}!");
-    Ok(0)
+    if wexe_dbg() {
+        eprintln!("{bg_B}No app specified: redirecting to {fg_o}wexecfg{rst}.");
+    }
+    run_app("wexecfg".to_string(), false)
 }
 
 fn mainmain() -> Result<i32, Box<dyn Error>> {
