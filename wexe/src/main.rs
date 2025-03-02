@@ -13,6 +13,19 @@ fn run_app_raw(args: Vec<String>, cfg: WexeApp) -> Result<i32, Box<dyn Error>> {
     extended_args.extend(args);
     extended_args.extend(cfg.args.append);
 
+    // Test if the target executable exists. In this usage that is an error.
+    // This cannot be tested earlier, because other usages may not require the target to exist.
+    let target = PathBuf::from(&cfg.target);
+    if !target.exists() {
+        eprintln!(
+            "{bg_B}Target executable does not exist: {fg_r}{:}{rst}.",
+            cfg.target
+        );
+        let error_text = format!("Target executable does not exist: {:}", cfg.target);
+        let error = std::io::Error::new(std::io::ErrorKind::NotFound, error_text);
+        return Err(Box::new(error));
+    }
+
     let mut cmd = Command::new(cfg.target);
     cmd.args(extended_args);
     for (k, v) in cfg.env_set.iter() {

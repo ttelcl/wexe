@@ -1,6 +1,8 @@
-use std::{error::Error, process::ExitCode};
+use std::error::Error;
+use std::process::ExitCode;
 
-use crate::{args_buffer::ArgumentsBuffer, commands::{Command, CommandCollection}};
+use crate::args_buffer::ArgumentsBuffer;
+use crate::commands::{Command, CommandCollection};
 
 use wexe::console_colors::*;
 

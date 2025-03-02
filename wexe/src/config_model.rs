@@ -219,10 +219,10 @@ pub fn read_config_file(cfg_file: PathBuf) -> Result<WexeApp, Box<dyn Error>> {
         let error_msg = format!("Target executable path must be absolute: {:}", appdef.target);
         return Err(error_msg.into());
     }
-    if !target.exists() {
-        let error_msg = format!("Target executable does not exist: {:}", appdef.target);
-        return Err(error_msg.into());
-    }
+    // if !target.exists() {
+    //     let error_msg = format!("Target executable does not exist: {:}", appdef.target);
+    //     return Err(error_msg.into());
+    // }
     Ok(appdef)
 }
 
