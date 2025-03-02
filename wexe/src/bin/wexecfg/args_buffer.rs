@@ -42,6 +42,14 @@ impl ArgumentsBuffer {
         }
     }
 
+    pub fn get(&self) -> &str {
+        self.peek().expect("Expecting an argument, but found none.")
+    }
+
+    pub fn get_at(&self, index: usize) -> &str {
+        self.peek_at(index).expect("Expecting an argument, but found none.")
+    }
+
     /// Consume the next `count` arguments without returning them.
     pub fn skip(&mut self, count: usize) {
         if self.current_arg + count > self.all_args.len() {
