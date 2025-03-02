@@ -3,6 +3,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::error::Error;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -181,9 +182,9 @@ pub struct WexeApp {
 /// * `cfg_file` - The path to the configuration file to read.
 /// # Returns
 /// A [WexeApp] model derived from the configuration file.
-pub fn read_config_file(cfg_file: PathBuf) -> WexeApp {
-    let cfg_text = std::fs::read_to_string(cfg_file).expect("Could not read the config file.");
-    let cfg: WexeAppConfig = toml::from_str(&cfg_text).expect("Could not parse the config file.");
+pub fn read_config_file(cfg_file: PathBuf) -> Result<WexeApp, Box<dyn Error>> {
+    let cfg_text = std::fs::read_to_string(cfg_file)?;
+    let cfg: WexeAppConfig = toml::from_str(&cfg_text)?;
     let env = cfg.env.unwrap_or(ConfigEnv {
         set: None,
         pathlike: None,
@@ -209,21 +210,20 @@ pub fn read_config_file(cfg_file: PathBuf) -> WexeApp {
         })
         .collect::<HashMap<String, ListOps>>();
     let appdef = WexeApp {
-        target: target.to_str().unwrap().to_string(),
+        target: target.to_string_lossy().to_string(),
         args: arg_ops,
         env_set: env.set.unwrap_or(HashMap::new()),
         env_pathlike: env_pathlike_ops,
     };
     if !target.is_absolute() {
-        panic!(
-            "Target executable path must be absolute: {:?}",
-            appdef.target
-        );
+        let error_msg = format!("Target executable path must be absolute: {:}", appdef.target);
+        return Err(error_msg.into());
     }
     if !target.exists() {
-        panic!("Target executable does not exist: {:?}", appdef.target);
+        let error_msg = format!("Target executable does not exist: {:}", appdef.target);
+        return Err(error_msg.into());
     }
-    appdef
+    Ok(appdef)
 }
 
 /// Get the configuration file for the wexecfg application. This configuration is

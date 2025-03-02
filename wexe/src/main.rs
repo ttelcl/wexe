@@ -120,9 +120,9 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
                 Some(cfg_file) => {
                     if wexe_dbg() {
                         eprintln!(
-                            "{bg_B}Config file for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:?}{rst}.",
+                            "{bg_B}Config file for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:}{rst}.",
                             tag.clone(),
-                            cfg_file
+                            cfg_file.to_string_lossy()
                         );
                     }
                     cfg_file
@@ -138,7 +138,7 @@ fn run_app(tag: String, skip1: bool) -> Result<i32, Box<dyn Error>> {
                 }
             };
 
-            let cfg = read_config_file(cfg_file);
+            let cfg = read_config_file(cfg_file)?;
             if wexe_dbg() {
                 println!(
                     "{bg_B}Config for app {fg_o}{:}{rst}{bg_B}: {fg_g}{:?}{rst}.",
