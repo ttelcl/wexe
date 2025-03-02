@@ -1,21 +1,25 @@
+use std::error::Error;
+use std::process::ExitCode;
+
 use wexe::console_colors::*;
 
 use commands::CommandCollection;
 
+mod command_help;
+mod command_list;
 mod commands;
 
 fn setup_commands() -> CommandCollection {
-    #[allow(unused_mut)]
     let mut commands = CommandCollection::new();
-    // commands.add_command(Box::new(commands::HelpCommand::new()));
-    // commands.add_command(Box::new(commands::ListCommand::new()));
-    // commands.add_command(Box::new(commands::SetCommand::new()));
-    // commands.add_command(Box::new(commands::UnsetCommand::new()));
+    commands.add_command(Box::new(command_help::HelpCommand::new()));
+    commands.add_command(Box::new(command_list::ListCommand::new()));
     commands
 }
 
-fn main() {
-    println!("Hello, {fg_g}wexecfg{rst}! ({stl_i}{stl_d}Not yet implemented{rst})");
-    #[allow(unused_variables)]
+fn main() -> Result<ExitCode, Box<dyn Error>> {
     let commands = setup_commands();
+
+    println!("{fg_g}{stl_i}WEXE executable wrapper - Configuration Utility{rst}.");
+    println!("Not yet implemented.");
+    commands.print_help()
 }

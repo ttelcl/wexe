@@ -2,6 +2,8 @@
 
 use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
+use std::process::ExitCode;
+
 use wexe::console_colors::*;
 
 pub trait Command {
@@ -11,13 +13,14 @@ pub trait Command {
         self.name_and_aliases()[0]
     }
     /// The primary name and any aliases for the command.
-    fn name_and_aliases(&self) -> &Vec<&str>;
+    fn name_and_aliases(&self) -> &[&str];
+
     /// Execute the command. The success status is returned as an integer,
     /// usually 0 for success, 1 for soft failure (e.g. after showing a help
     /// message instead of actually doing something).
-    fn execute(&self, args: &Vec<&str>) -> Result<i32, Box<dyn Error>>;
+    fn execute(&self, args: &[&str], commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>>;
 
-    fn print_help(&self) {
+    fn print_help(&self) -> () {
         println!("Help for command: {stl_i}{fg_o}{}{rst}", self.name());
     }
 }
@@ -33,10 +36,11 @@ pub struct CommandCollection {
 impl CommandCollection {
     /// Create a new, empty command collection.
     pub fn new() -> CommandCollection {
-        CommandCollection {
+        let commands = CommandCollection {
             commands: BTreeMap::new(),
             command_map: HashMap::new(),
-        }
+        };
+        commands
     }
 
     /// Add a command to the collection (moving the command into it).
@@ -61,5 +65,21 @@ impl CommandCollection {
     /// The commands are ordered by their primary name.
     pub fn get_commands(&self) -> Vec<&Box<dyn Command>> {
         self.commands.values().collect()
+    }
+
+    pub fn print_help(&self) -> Result<ExitCode, Box<dyn Error>> {
+        let help_command = self.get_command("/help");
+        match help_command {
+            Some(help_command) => {
+                help_command.execute(&[], self)
+            }
+            None => {
+                println!("{fg_o}Warning: No '/help' command found. Using fallback implementation{rst}.\n");
+                for cmd in self.get_commands().iter() {
+                    cmd.print_help();
+                }
+                Err("No '/help' command found.".into()) 
+            }
+        }
     }
 }
