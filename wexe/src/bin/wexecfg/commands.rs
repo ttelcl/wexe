@@ -6,6 +6,8 @@ use std::process::ExitCode;
 
 use wexe::console_colors::*;
 
+use crate::args_buffer::ArgumentsBuffer;
+
 pub trait Command {
     /// The primary name of the command. Defaults to the first item
     /// in the list returned by `name_and_aliases()`.
@@ -18,7 +20,7 @@ pub trait Command {
     /// Execute the command. The success status is returned as an integer,
     /// usually 0 for success, 1 for soft failure (e.g. after showing a help
     /// message instead of actually doing something).
-    fn execute(&self, args: &[&str], commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>>;
+    fn execute(&self, args: &mut ArgumentsBuffer, commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>>;
 
     fn print_help(&self) -> () {
         println!("Help for command: {stl_i}{fg_o}{}{rst}", self.name());
@@ -71,7 +73,8 @@ impl CommandCollection {
         let help_command = self.get_command("/help");
         match help_command {
             Some(help_command) => {
-                help_command.execute(&[], self)
+                let mut args = ArgumentsBuffer::new(Vec::new());
+                help_command.execute(&mut args, self)
             }
             None => {
                 println!("{fg_o}Warning: No '/help' command found. Using fallback implementation{rst}.\n");

@@ -1,7 +1,7 @@
 
 use std::{error::Error, process::ExitCode};
 
-use crate::commands::{Command, CommandCollection};
+use crate::{args_buffer::ArgumentsBuffer, commands::{Command, CommandCollection}};
 
 use wexe::console_colors::*;
 
@@ -27,7 +27,7 @@ impl Command for ListCommand {
         self.names.as_ref()
     }
 
-    fn execute(&self, _args: &[&str], _commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>> {
+    fn execute(&self, _args: &mut ArgumentsBuffer, _commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>> {
         panic!("Not yet implemented: ListCommand.execute.");
     }
 

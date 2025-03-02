@@ -3,8 +3,10 @@ use std::process::ExitCode;
 
 use wexe::console_colors::*;
 
+use args_buffer::ArgumentsBuffer;
 use commands::CommandCollection;
 
+mod args_buffer;
 mod command_help;
 mod command_list;
 mod commands;
@@ -17,9 +19,33 @@ fn setup_commands() -> CommandCollection {
 }
 
 fn main() -> Result<ExitCode, Box<dyn Error>> {
-    let commands = setup_commands();
-
     println!("{fg_g}{stl_i}WEXE executable wrapper - Configuration Utility{rst}.");
-    println!("Not yet implemented.");
-    commands.print_help()
+
+    let commands = setup_commands();
+    let mut arguments = ArgumentsBuffer::new(std::env::args().skip(1).collect());
+
+    match arguments.peek() {
+        Some(name) => {
+            let name = name.to_string();
+            let command = commands.get_command(&name);
+            arguments.skip(1);
+            match command {
+                Some(command) => {
+                    command.execute(&mut arguments, &commands)
+                },
+                None => {
+                    eprintln!(
+                        "{fg_r}Unknown command: {fg_o}{:}{rst}.",
+                        name
+                    );
+                    commands.print_help()
+                }
+                
+            }
+        }
+        None => {
+            eprintln!("{fg_r}No command specified{rst}.");
+            commands.print_help()
+        }
+    }
 }

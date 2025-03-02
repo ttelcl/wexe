@@ -1,6 +1,6 @@
 use std::{error::Error, process::ExitCode};
 
-use crate::commands::{Command, CommandCollection};
+use crate::{args_buffer::ArgumentsBuffer, commands::{Command, CommandCollection}};
 
 use wexe::console_colors::*;
 
@@ -25,7 +25,7 @@ impl Command for HelpCommand {
         self.names.as_ref()
     }
 
-    fn execute(&self, _args: &[&str], commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>> {
+    fn execute(&self, _args: &mut ArgumentsBuffer, commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>> {
         for cmd in commands.get_commands().iter() {
             cmd.print_help();
         }
