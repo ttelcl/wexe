@@ -35,7 +35,7 @@ impl Command for HelpCommand {
     }
 
     fn print_help(&self) -> () {
-        println!(r#"{fg_o}/help{rst}\n 
+        println!(r#"{fg_o}/help{rst} 
     Show help for all commands"#
         );
     }

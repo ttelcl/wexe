@@ -68,6 +68,7 @@ impl Command for ListCommand {
         if !options.parse_args(_args) {
             return Err(format!("Invalid arguments for command '{}'.", self.name()).into());
         }
+        println!("Registered applications{rst}:");
         let repo = WexeRepository::new();
         let apps = repo.get_entries();
         for app in apps.iter() {
@@ -86,10 +87,10 @@ impl Command for ListCommand {
             let style_tag;
             let style_target;
             if target_exe_path.is_none() {
-                style_tag = format!("{stl_s}{fg_r}");
+                style_tag = format!("{stl_i}{fg_r}");
                 style_target = format!("{stl_i}{fg_r}* Configuration Load Error: ");
             } else if !target_exe_path.as_ref().unwrap().exists() {
-                style_tag = format!("{stl_s}{fg_o}");
+                style_tag = format!("{stl_i}{fg_r}");
                 style_target = format!("{fg_r}{stl_i}* Target file missing: {rst}{stl_s}{fg_o}");
             } else {
                 style_tag = format!("{fg_g}");
@@ -102,7 +103,7 @@ impl Command for ListCommand {
 
     fn print_help(&self) -> () {
         println!(
-            r#"{fg_o}/list{rst} [{fg_g}-m {fg_c}{stl_i}filter{rst}]\n 
+            r#"{fg_o}/list{rst} [{fg_g}-m {fg_c}{stl_i}filter{rst}] 
     List the registered applications."#
         );
     }
