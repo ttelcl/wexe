@@ -11,7 +11,7 @@ use toml;
 
 pub struct WexeConfigFolders {
     pub wexe_cfg_dir: PathBuf,
-    pub wexe_bin_dir: PathBuf,
+    // pub wexe_bin_dir: PathBuf,
 }
 
 lazy_static! {
@@ -47,13 +47,13 @@ lazy_static! {
         user_cfg_dir.push(".wexe");
         fs::create_dir_all(user_cfg_dir.as_path())
             .expect("Could not create the .wexe config directory.");
-        let /* mut */ user_cfg_bin_dir = user_cfg_dir.clone();
+        // let mut user_cfg_bin_dir = user_cfg_dir.clone();
         //user_cfg_bin_dir.push("bin");
         //fs::create_dir_all(user_cfg_bin_dir.as_path())
         //    .expect("Could not create the .wexe/bin config directory.");
         WexeConfigFolders {
             wexe_cfg_dir: user_cfg_dir,
-            wexe_bin_dir: user_cfg_bin_dir,
+            // wexe_bin_dir: user_cfg_bin_dir,
         }
     };
     static ref APP_TAG_REGEX: Regex = Regex::new(r"^[a-z][a-z0-9]*([-_][a-z0-9]+)*$").unwrap();
@@ -91,11 +91,11 @@ pub fn get_wexe_cfg_dir() -> PathBuf {
     WEXE_CFG_FOLDERS.wexe_cfg_dir.clone()
 }
 
-/// Get the path to the wexe binary folder (creating it if it does not exist).
-/// This is the folder where the original wexe.exe and wexecfg.exe are installed.
-pub fn get_wexe_cfg_bin_dir() -> PathBuf {
-    WEXE_CFG_FOLDERS.wexe_bin_dir.clone()
-}
+// /// Get the path to the wexe binary folder (creating it if it does not exist).
+// /// This is the folder where the original wexe.exe and wexecfg.exe are installed.
+// pub fn get_wexe_cfg_bin_dir() -> PathBuf {
+//     WEXE_CFG_FOLDERS.wexe_bin_dir.clone()
+// }
 
 /// Get the path to a configuration file for a given tag, or None if no such file exists.
 /// # Arguments

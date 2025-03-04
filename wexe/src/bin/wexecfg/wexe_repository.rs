@@ -9,13 +9,13 @@ use std::fs::DirEntry;
 
 use wexe::config_model::read_config_file;
 use wexe::config_model::{
-    get_config_file, get_wexe_cfg_bin_dir, get_wexe_cfg_dir, is_valid_app_tag,
+    get_config_file, get_wexe_cfg_dir, is_valid_app_tag,
 };
 use wexe::console_colors::*;
 
 pub struct WexeRepository {
     config_folder: PathBuf,
-    bin_folder: PathBuf,
+    // bin_folder: PathBuf,
     wexe_exe_path: PathBuf,
     wexecfg_exe_path: PathBuf,
     entries: BTreeMap<String, WexeEntry>,
@@ -54,7 +54,7 @@ impl WexeEntry {
 impl WexeRepository {
     pub fn new() -> WexeRepository {
         let config_folder = get_wexe_cfg_dir();
-        let bin_folder = get_wexe_cfg_bin_dir();
+        // let bin_folder = get_wexe_cfg_bin_dir();
         let mut entries = BTreeMap::new();
         for direntry in read_dir(&config_folder).unwrap() {
             let entry = direntry.unwrap();
@@ -101,9 +101,9 @@ impl WexeRepository {
         }
         WexeRepository {
             config_folder,
-            bin_folder,
-            wexe_exe_path: get_wexe_cfg_bin_dir().join("wexe".to_string() + EXE_SUFFIX),
-            wexecfg_exe_path: get_wexe_cfg_bin_dir().join("wexecfg".to_string() + EXE_SUFFIX),
+            // bin_folder,
+            wexe_exe_path: get_wexe_cfg_dir().join("wexe".to_string() + EXE_SUFFIX),
+            wexecfg_exe_path: get_wexe_cfg_dir().join("wexecfg".to_string() + EXE_SUFFIX),
             entries,
         }
     }
@@ -119,17 +119,17 @@ impl WexeRepository {
         &self.config_folder
     }
 
-    /// Get the path to the wexe binary folder (where wexe and wexecfg themselves are installed)
-    pub fn get_bin_folder(&self) -> &PathBuf {
-        &self.bin_folder
-    }
+    // /// Get the path to the wexe binary folder (where wexe and wexecfg themselves are installed)
+    // pub fn get_bin_folder(&self) -> &PathBuf {
+    //     &self.bin_folder
+    // }
 
-    /// Get the path to the installed wexe executable.
+    /// Get the file path to the installed wexe executable.
     pub fn get_wexe_exe_path(&self) -> &PathBuf {
         &self.wexe_exe_path
     }
 
-    /// Get the path to the installed wexecfg executable.
+    /// Get the file path to the installed wexecfg executable.
     pub fn get_wexecfg_exe_path(&self) -> &PathBuf {
         &self.wexecfg_exe_path
     }
