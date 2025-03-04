@@ -47,10 +47,10 @@ lazy_static! {
         user_cfg_dir.push(".wexe");
         fs::create_dir_all(user_cfg_dir.as_path())
             .expect("Could not create the .wexe config directory.");
-        let mut user_cfg_bin_dir = user_cfg_dir.clone();
-        user_cfg_bin_dir.push("bin");
-        fs::create_dir_all(user_cfg_bin_dir.as_path())
-            .expect("Could not create the .wexe/bin config directory.");
+        let /* mut */ user_cfg_bin_dir = user_cfg_dir.clone();
+        //user_cfg_bin_dir.push("bin");
+        //fs::create_dir_all(user_cfg_bin_dir.as_path())
+        //    .expect("Could not create the .wexe/bin config directory.");
         WexeConfigFolders {
             wexe_cfg_dir: user_cfg_dir,
             wexe_bin_dir: user_cfg_bin_dir,
