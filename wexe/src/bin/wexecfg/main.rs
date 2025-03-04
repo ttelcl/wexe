@@ -10,6 +10,7 @@ mod args_buffer;
 mod command_help;
 mod command_list;
 mod commands;
+mod help_central;
 mod wexe_repository;
 
 fn setup_commands() -> CommandCollection {
