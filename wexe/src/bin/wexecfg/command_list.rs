@@ -79,11 +79,10 @@ impl Command for ListCommand {
                 }
             }
             let target_exe_path = app.get_target_exe_path();
-            let target_text =
-                match target_exe_path {
-                    Some(path) => path.to_str().unwrap(),
-                    None => app.get_load_error().as_ref().unwrap(),
-                };
+            let target_text = match target_exe_path {
+                Some(path) => path.to_str().unwrap(),
+                None => app.get_load_error().as_ref().unwrap(),
+            };
             let style_tag;
             let style_target;
             if target_exe_path.is_none() {
@@ -104,7 +103,8 @@ impl Command for ListCommand {
     fn print_help(&self) -> () {
         println!(
             r#"{fg_o}/list{rst} [{fg_g}-m {fg_c}{stl_i}filter{rst}] 
-    List the registered applications."#
+    List the registered applications.
+    {fg_g}-m {fg_c}{stl_i}filter{rst}       Only list applications with the {fg_c}{stl_i}filter{rst} string in their name {stl_i}(Optional){rst}."#
         );
     }
 }
