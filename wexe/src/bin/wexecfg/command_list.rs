@@ -100,11 +100,4 @@ impl Command for ListCommand {
         Ok(ExitCode::SUCCESS)
     }
 
-    fn print_help(&self) -> () {
-        println!(
-            r#"{fg_o}/list{rst} [{fg_g}-m {fg_c}{stl_i}filter{rst}] 
-    List the registered applications.
-    {fg_g}-m {fg_c}{stl_i}filter{rst}       Only list applications with the {fg_c}{stl_i}filter{rst} string in their name {stl_i}(Optional){rst}."#
-        );
-    }
 }

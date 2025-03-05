@@ -10,28 +10,6 @@ pub struct CommandHelp {
 }
 
 impl CommandHelp {
-    pub fn new(
-        command: &str,
-        synopsis: &str,
-        description: &str,
-        options: &Vec<&str>,
-    ) -> CommandHelp {
-        let mut command_help = CommandHelp {
-            command: command.to_string(),
-            synopsis: synopsis.to_string(),
-            description: description.to_string(),
-            options: Vec::new(),
-        };
-        for opt in options.iter() {
-            command_help.add_option(opt);
-        }
-        command_help
-    }
-
-    pub fn add_option(&mut self, option: &str) {
-        self.options.push(option.to_string());
-    }
-
     pub fn print(&self) {
         println!("{}{rst}", self.synopsis);
         println!("    {}{rst}", self.description);
@@ -41,14 +19,38 @@ impl CommandHelp {
     }
 }
 
+fn init_help() -> Vec<CommandHelp> {
+    let mut help = Vec::new();
+    help.push(
+        CommandHelp {
+            command: "/help".into(),
+            synopsis: format!("{fg_o}/help{rst}"),
+            description: "Show help for all commands".into(),
+            options: Vec::new(),
+        }
+    );
+    help.push(
+        CommandHelp {
+            command: "/list".into(),
+            synopsis: format!("{fg_o}/list{rst} [{fg_g}-m {fg_c}{stl_i}filter{rst}]"),
+            description: "List all configured applications".into(),
+            options: vec![
+                format!("{fg_g}-m {fg_c}{stl_i}filter{rst}       If given, only list applications with the {fg_c}{stl_i}filter{rst} string in their name."),
+            ],
+        }
+    );
+    help
+}
+
 pub struct HelpCentral {
     commands: Vec<CommandHelp>,
 }
 
 impl HelpCentral {
     pub fn new() -> HelpCentral {
+        let help = init_help();
         HelpCentral {
-            commands: Vec::new(),
+            commands: help,
         }
     }
 
@@ -76,6 +78,12 @@ impl HelpCentral {
                     command
                 );
             }
+        }
+    }
+
+    pub fn print_all_help(&self) {
+        for help in self.commands.iter() {
+            help.print();
         }
     }
 }

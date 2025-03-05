@@ -4,9 +4,8 @@ use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
 use std::process::ExitCode;
 
-use wexe::console_colors::*;
-
 use crate::args_buffer::ArgumentsBuffer;
+use crate::help_central::HelpCentral;
 
 pub trait Command {
     /// The primary name of the command. Defaults to the first item
@@ -21,10 +20,6 @@ pub trait Command {
     /// usually 0 for success, 1 for soft failure (e.g. after showing a help
     /// message instead of actually doing something).
     fn execute(&self, args: &mut ArgumentsBuffer, commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>>;
-
-    fn print_help(&self) -> () {
-        println!("Help for command: {stl_i}{fg_o}{}{rst}", self.name());
-    }
 }
 
 pub struct CommandCollection {
@@ -33,6 +28,9 @@ pub struct CommandCollection {
 
     /// A map of all command names and aliases to their primary names.
     command_map: HashMap<String, String>,
+
+    /// A reference to the help central.
+    help_central: HelpCentral,
 }
 
 impl CommandCollection {
@@ -41,6 +39,7 @@ impl CommandCollection {
         let commands = CommandCollection {
             commands: BTreeMap::new(),
             command_map: HashMap::new(),
+            help_central: HelpCentral::new(),
         };
         commands
     }
@@ -69,20 +68,14 @@ impl CommandCollection {
         self.commands.values().collect()
     }
 
-    pub fn print_help(&self) -> Result<ExitCode, Box<dyn Error>> {
-        let help_command = self.get_command("/help");
-        match help_command {
-            Some(help_command) => {
-                let mut args = ArgumentsBuffer::new(Vec::new());
-                help_command.execute(&mut args, self)
-            }
-            None => {
-                println!("{fg_o}Warning: No '/help' command found. Using fallback implementation{rst}.\n");
-                for cmd in self.get_commands().iter() {
-                    cmd.print_help();
-                }
-                Err("No '/help' command found.".into()) 
-            }
-        }
+    /// Print help for all commands.
+    pub fn print_all_help(&self) -> Result<ExitCode, Box<dyn Error>> {
+        self.help_central.print_all_help();
+        Ok(ExitCode::FAILURE) // soft failure
+    }
+
+    /// Print help for a specific command.
+    pub fn print_help_for(&self, command: &str) {
+        self.help_central.print_help_for(command);
     }
 }

@@ -4,8 +4,6 @@ use std::process::ExitCode;
 use crate::args_buffer::ArgumentsBuffer;
 use crate::commands::{Command, CommandCollection};
 
-use wexe::console_colors::*;
-
 pub struct HelpCommand {
     names: Vec<&'static str>,
 }
@@ -28,15 +26,6 @@ impl Command for HelpCommand {
     }
 
     fn execute(&self, _args: &mut ArgumentsBuffer, commands: &CommandCollection) -> Result<ExitCode, Box<dyn Error>> {
-        for cmd in commands.get_commands().iter() {
-            cmd.print_help();
-        }
-        Ok(ExitCode::FAILURE) // soft failure
-    }
-
-    fn print_help(&self) -> () {
-        println!(r#"{fg_o}/help{rst} 
-    Show help for all commands"#
-        );
+        commands.print_all_help()
     }
 }

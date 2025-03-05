@@ -40,14 +40,14 @@ fn main() -> Result<ExitCode, Box<dyn Error>> {
                         "{fg_r}Unknown command: {fg_o}{:}{rst}.",
                         name
                     );
-                    commands.print_help()
+                    commands.print_all_help()
                 }
                 
             }
         }
         None => {
             eprintln!("{fg_r}No command specified{rst}.");
-            commands.print_help()
+            commands.print_all_help()
         }
     }
 }
