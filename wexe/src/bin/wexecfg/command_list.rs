@@ -62,10 +62,11 @@ impl Command for ListCommand {
     fn execute(
         &self,
         _args: &mut ArgumentsBuffer,
-        _commands: &CommandCollection,
+        commands: &CommandCollection,
     ) -> Result<ExitCode, Box<dyn Error>> {
         let mut options = ListCommandOptions::new();
         if !options.parse_args(_args) {
+            commands.print_help_for(self.name());
             return Err(format!("Invalid arguments for command '{}'.", self.name()).into());
         }
         println!("Registered applications{rst}:");

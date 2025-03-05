@@ -11,7 +11,7 @@ pub struct CommandHelp {
 
 impl CommandHelp {
     pub fn print(&self) {
-        println!("{}{rst}", self.synopsis);
+        println!("{fg_o}wexecfg {}{rst}", self.synopsis);
         println!("    {}{rst}", self.description);
         for opt in self.options.iter() {
             println!("    {}{rst}", opt);
@@ -21,24 +21,21 @@ impl CommandHelp {
 
 fn init_help() -> Vec<CommandHelp> {
     let mut help = Vec::new();
-    help.push(
-        CommandHelp {
-            command: "/help".into(),
-            synopsis: format!("{fg_o}/help{rst}"),
-            description: "Show help for all commands".into(),
-            options: Vec::new(),
-        }
-    );
-    help.push(
-        CommandHelp {
-            command: "/list".into(),
-            synopsis: format!("{fg_o}/list{rst} [{fg_g}-m {fg_c}{stl_i}filter{rst}]"),
-            description: "List all configured applications".into(),
-            options: vec![
-                format!("{fg_g}-m {fg_c}{stl_i}filter{rst}       If given, only list applications with the {fg_c}{stl_i}filter{rst} string in their name."),
-            ],
-        }
-    );
+    help.push(CommandHelp {
+        command: "/help".into(),
+        synopsis: format!("{fg_y}/help{rst}"),
+        description: "Show help for all commands".into(),
+        options: Vec::new(),
+    });
+    help.push(CommandHelp {
+        command: "/list".into(),
+        synopsis: format!("{fg_y}/list{rst} [{fg_g}-m {fg_c}{stl_i}filter{rst}]"),
+        description: "List all configured applications".into(),
+        options: vec![format!(
+            "{fg_g}-m {fg_c}{stl_i}filter{rst}       If given, only \
+                list applications with the {fg_c}{stl_i}filter{rst} string in their name."
+        )],
+    });
     help
 }
 
@@ -49,9 +46,7 @@ pub struct HelpCentral {
 impl HelpCentral {
     pub fn new() -> HelpCentral {
         let help = init_help();
-        HelpCentral {
-            commands: help,
-        }
+        HelpCentral { commands: help }
     }
 
     pub fn add_help(&mut self, command: CommandHelp) {
