@@ -8,6 +8,7 @@ use commands::CommandCollection;
 
 mod args_buffer;
 mod command_help;
+mod command_install;
 mod command_list;
 mod commands;
 mod help_central;
@@ -17,6 +18,7 @@ fn setup_commands() -> CommandCollection {
     let mut commands = CommandCollection::new();
     commands.add_command(Box::new(command_help::HelpCommand::new()));
     commands.add_command(Box::new(command_list::ListCommand::new()));
+    commands.add_command(Box::new(command_install::InstallCommand::new()));
     commands
 }
 

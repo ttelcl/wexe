@@ -1,19 +1,15 @@
-#![allow(unused_imports)]
 #![allow(dead_code)]
 
 use std::collections::BTreeMap;
 use std::env::consts::EXE_SUFFIX;
-use std::fs::DirEntry;
 use std::fs::read_dir;
 use std::path::PathBuf;
-use std::time::SystemTime;
 
 use chrono::DateTime;
 use chrono::offset::Utc;
 
 use wexe::config_model::read_config_file;
-use wexe::config_model::{get_config_file, get_wexe_cfg_dir, is_valid_app_tag};
-use wexe::console_colors::*;
+use wexe::config_model::{get_wexe_cfg_dir, is_valid_app_tag};
 
 pub struct WexeRepository {
     config_folder: PathBuf,
