@@ -1,4 +1,3 @@
-#![allow(unused_imports)]
 
 use std::env;
 use std::error::Error;
@@ -9,7 +8,7 @@ use same_file::is_same_file;
 
 use super::args_buffer::ArgumentsBuffer;
 use super::commands::{Command, CommandCollection};
-use super::wexe_repository::{WexeRepository, get_file_stamp, target_missing_or_older};
+use super::wexe_repository::{WexeRepository, target_missing_or_older};
 
 use wexe::console_colors::*;
 
@@ -85,6 +84,7 @@ impl Command for InstallCommand {
         }
 
         let wexecfg_dest = repo.get_wexecfg_exe_path();
+        let wexecfg_short_name = &exe.file_name().unwrap();
         if target_missing_or_older(&exe, &wexecfg_dest) {
             println!(
                 "Copying {fg_b}{:}{fg_W} to {fg_g}{:}{rst}.",
@@ -95,19 +95,25 @@ impl Command for InstallCommand {
         } else {
             println!(
                 "{fg_g}{}{fg_W} is already up to date{rst}.",
-                wexecfg_dest.to_string_lossy()
+                wexecfg_short_name.to_string_lossy()
             );
         }
 
         let wexe_dest = repo.get_wexe_exe_path();
+        let wexe_short_name = wexe_dest.file_name().unwrap();
         if options.include_wexe {
+            let wexe_source = {
+                let mut wexe_source = exe.clone();
+                wexe_source.set_file_name(wexe_short_name);
+                wexe_source
+            };
             if target_missing_or_older(&exe, &wexe_dest) {
                 println!(
                     "Copying {fg_b}{:}{fg_W} to {fg_g}{:}{rst}.",
-                    &exe.to_string_lossy(),
+                    &wexe_source.to_string_lossy(),
                     wexe_dest.to_string_lossy()
                 );
-                fs::copy(exe, wexe_dest)?;
+                fs::copy(&wexe_source, wexe_dest)?;
             } else {
                 println!(
                     "{fg_g}{}{fg_W} is already up to date{rst}.",
@@ -118,7 +124,7 @@ impl Command for InstallCommand {
             if target_missing_or_older(&exe, &wexe_dest) {
                 println!(
                     "{fg_o}{}{fg_y} not copied. Use {fg_g}-wexe{fg_y} to include it{rst}.",
-                    &exe.to_string_lossy()
+                    wexe_short_name.to_string_lossy()
                 );
             } // else : stay silent. It was not requested but is up to date already.
         }
