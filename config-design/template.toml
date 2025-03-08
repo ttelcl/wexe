@@ -1,0 +1,18 @@
+
+target = "C:\\bin\\echoargs.exe"
+
+# Additional arguments to prepend or append to the given command line.
+[args]
+prepend = [ ]
+append = [ ]
+
+# Plain environment variables to set or delete
+[env.set]
+# FOO = "bar"
+# BAR = ""
+
+# You can prepend or append items to PATH-like environment variables
+# For example: prepend or append to the PATH environment variable itself
+[env.pathlike.PATH]
+prepend = [ ]
+append = [ ]
