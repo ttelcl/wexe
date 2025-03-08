@@ -107,7 +107,7 @@ impl Command for InstallCommand {
                 wexe_source.set_file_name(wexe_short_name);
                 wexe_source
             };
-            if target_missing_or_older(&exe, &wexe_dest) {
+            if target_missing_or_older(&wexe_source, &wexe_dest) {
                 println!(
                     "Copying {fg_b}{:}{fg_W} to {fg_g}{:}{rst}.",
                     &wexe_source.to_string_lossy(),
@@ -117,7 +117,7 @@ impl Command for InstallCommand {
             } else {
                 println!(
                     "{fg_g}{}{fg_W} is already up to date{rst}.",
-                    wexe_dest.to_string_lossy()
+                    wexe_short_name.to_string_lossy()
                 );
             }
         } else {

@@ -1,13 +1,15 @@
-use crate::console_colors::*;
+use std::collections::HashMap;
+use std::env;
+use std::error::Error;
+use std::fs;
+use std::path::{Path, PathBuf};
+
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::error::Error;
-use std::env;
-use std::fs;
-use std::path::{Path, PathBuf};
 use toml;
+
+use crate::console_colors::*;
 
 pub struct WexeConfigFolders {
     pub wexe_cfg_dir: PathBuf,
@@ -30,9 +32,9 @@ lazy_static! {
                 #[cfg(debug_assertions)]
                 {
                     eprintln!(
-                        "{bg_B}{stl_u}{fg_r}WEXE_DEBUG is ON (WEXE_DEBUG not set, but debug build){rst}."
+                        "{bg_B}{stl_u}{fg_r}WEXE_DEBUG is OFF. This message only shows in debug builds, and only if WEXE_DEBUG is not set at all{rst}."
                     );
-                    true
+                    false
                 }
                 #[cfg(not(debug_assertions))]
                 {
@@ -216,7 +218,10 @@ pub fn read_config_file(cfg_file: PathBuf) -> Result<WexeApp, Box<dyn Error>> {
         env_pathlike: env_pathlike_ops,
     };
     if !target.is_absolute() {
-        let error_msg = format!("Target executable path must be absolute: {:}", appdef.target);
+        let error_msg = format!(
+            "Target executable path must be absolute: {:}",
+            appdef.target
+        );
         return Err(error_msg.into());
     }
     // if !target.exists() {
