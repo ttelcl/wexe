@@ -73,6 +73,12 @@ impl Command for ListCommand {
         println!("Registered applications{rst}:");
         let repo = WexeRepository::new();
         let apps = repo.get_entries();
+        let title_tag = "Application";
+        let title_stub = "Stub status";
+        let title_target = "Target";
+        println!(
+            "{stl_u}{title_tag:<20} | {stl_u}{title_stub:<16} | {stl_u}{title_target:<40}.{rst}"
+        );
         for app in apps.iter() {
             let tag = app.get_tag();
             if let Some(filter) = &options.filter {
@@ -105,13 +111,15 @@ impl Command for ListCommand {
                     let stamp_text = stamp.format("%Y%m%d-%H%M%S").to_string();
                     stub_style = format!("{fg_y}");
                     format!("{:}", stamp_text)
-                },
+                }
                 None => {
                     stub_style = format!("{fg_o}{stl_i}");
                     format!("Stub missing",)
-                },
+                }
             };
-            println!("{style_tag}{tag:<20}{rst} {stub_style}{stub_stamp_text:<16}{rst} {style_target}{target_text}{rst}");
+            println!(
+                "{style_tag}{tag:<20}{rst} | {stub_style}{stub_stamp_text:<16}{rst} | {style_target}{target_text}{rst}"
+            );
         }
         Ok(ExitCode::SUCCESS)
     }
