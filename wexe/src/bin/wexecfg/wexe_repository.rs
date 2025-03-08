@@ -3,14 +3,16 @@
 
 use std::collections::BTreeMap;
 use std::env::consts::EXE_SUFFIX;
-use std::path::PathBuf;
-use std::fs::read_dir;
 use std::fs::DirEntry;
+use std::fs::read_dir;
+use std::path::PathBuf;
+use std::time::SystemTime;
+
+use chrono::DateTime;
+use chrono::offset::Utc;
 
 use wexe::config_model::read_config_file;
-use wexe::config_model::{
-    get_config_file, get_wexe_cfg_dir, is_valid_app_tag,
-};
+use wexe::config_model::{get_config_file, get_wexe_cfg_dir, is_valid_app_tag};
 use wexe::console_colors::*;
 
 pub struct WexeRepository {
@@ -27,6 +29,20 @@ pub struct WexeEntry {
     cfg_path: PathBuf,
     target_exe_path: Option<PathBuf>, // None if configuration loading failed
     load_error: Option<String>,       // None if configuration loading succeeded
+}
+
+pub fn get_file_stamp(file: &PathBuf) -> Option<DateTime<Utc>> {
+    let meta_result = file.metadata();
+    match meta_result {
+        Ok(meta) => {
+            let system_time = meta
+                .modified()
+                .expect("Unable to get file modification time from valid metadata??");
+            let datetime: DateTime<Utc> = system_time.into();
+            Some(datetime)
+        }
+        Err(_) => None,
+    }
 }
 
 impl WexeEntry {

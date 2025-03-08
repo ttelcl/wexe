@@ -4,6 +4,7 @@ use std::process::ExitCode;
 use super::args_buffer::ArgumentsBuffer;
 use super::commands::{Command, CommandCollection};
 use super::wexe_repository::WexeRepository;
+use super::wexe_repository::get_file_stamp;
 
 use wexe::console_colors::*;
 
@@ -96,9 +97,22 @@ impl Command for ListCommand {
                 style_tag = format!("{fg_g}");
                 style_target = format!("");
             }
-            println!("{style_tag}{tag:<20}{rst} {style_target}{target_text}{rst}");
+            let stub_stamp = get_file_stamp(app.get_stub_exe_path());
+            //let stub_stamp = get_file_stamp(app.get_cfg_path());
+            let stub_style: String;
+            let stub_stamp_text: String = match stub_stamp {
+                Some(stamp) => {
+                    let stamp_text = stamp.format("%Y%m%d-%H%M%S").to_string();
+                    stub_style = format!("{fg_y}");
+                    format!("{:}", stamp_text)
+                },
+                None => {
+                    stub_style = format!("{fg_o}{stl_i}");
+                    format!("Stub missing",)
+                },
+            };
+            println!("{style_tag}{tag:<20}{rst} {stub_style}{stub_stamp_text:<16}{rst} {style_target}{target_text}{rst}");
         }
         Ok(ExitCode::SUCCESS)
     }
-
 }
