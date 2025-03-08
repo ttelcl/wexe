@@ -9,8 +9,7 @@ use same_file::is_same_file;
 
 use super::args_buffer::ArgumentsBuffer;
 use super::commands::{Command, CommandCollection};
-use super::wexe_repository::WexeRepository;
-use super::wexe_repository::get_file_stamp;
+use super::wexe_repository::{WexeRepository, get_file_stamp, target_missing_or_older};
 
 use wexe::console_colors::*;
 
@@ -86,26 +85,42 @@ impl Command for InstallCommand {
         }
 
         let wexecfg_dest = repo.get_wexecfg_exe_path();
-        println!(
-            "Copying {fg_b}{:}{fg_W} to {fg_g}{:}{rst}.",
-            &exe.to_string_lossy(),
-            wexecfg_dest.to_string_lossy()
-        );
-        fs::copy(&exe, wexecfg_dest)?;
-
-        let wexe_dest = repo.get_wexe_exe_path();
-        if options.include_wexe {
+        if target_missing_or_older(&exe, &wexecfg_dest) {
             println!(
                 "Copying {fg_b}{:}{fg_W} to {fg_g}{:}{rst}.",
                 &exe.to_string_lossy(),
-                wexe_dest.to_string_lossy()
+                wexecfg_dest.to_string_lossy()
             );
-            fs::copy(exe, wexe_dest)?;
+            fs::copy(&exe, wexecfg_dest)?;
         } else {
             println!(
-                "{fg_o}{}{fg_y} not copied. Use {fg_g}-wexe{fg_y} to include it{rst}.",
-                &exe.to_string_lossy()
+                "{fg_g}{}{fg_W} is already up to date{rst}.",
+                wexecfg_dest.to_string_lossy()
             );
+        }
+
+        let wexe_dest = repo.get_wexe_exe_path();
+        if options.include_wexe {
+            if target_missing_or_older(&exe, &wexe_dest) {
+                println!(
+                    "Copying {fg_b}{:}{fg_W} to {fg_g}{:}{rst}.",
+                    &exe.to_string_lossy(),
+                    wexe_dest.to_string_lossy()
+                );
+                fs::copy(exe, wexe_dest)?;
+            } else {
+                println!(
+                    "{fg_g}{}{fg_W} is already up to date{rst}.",
+                    wexe_dest.to_string_lossy()
+                );
+            }
+        } else {
+            if target_missing_or_older(&exe, &wexe_dest) {
+                println!(
+                    "{fg_o}{}{fg_y} not copied. Use {fg_g}-wexe{fg_y} to include it{rst}.",
+                    &exe.to_string_lossy()
+                );
+            } // else : stay silent. It was not requested but is up to date already.
         }
 
         Ok(ExitCode::SUCCESS)

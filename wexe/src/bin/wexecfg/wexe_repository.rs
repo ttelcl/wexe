@@ -3,7 +3,7 @@
 use std::collections::BTreeMap;
 use std::env::consts::EXE_SUFFIX;
 use std::fs::read_dir;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use chrono::DateTime;
 use chrono::offset::Utc;
@@ -38,6 +38,20 @@ pub fn get_file_stamp(file: &PathBuf) -> Option<DateTime<Utc>> {
             Some(datetime)
         }
         Err(_) => None,
+    }
+}
+
+pub fn target_missing_or_older(source: &Path, target: &Path) -> bool {
+    let meta_source = source.metadata();
+    let meta_target = target.metadata();
+    match (meta_source, meta_target) {
+        (Ok(meta_source), Ok(meta_target)) => {
+            let time_source = meta_source.modified().unwrap();
+            let time_target = meta_target.modified().unwrap();
+            time_source > time_target
+        }
+        (Ok(_), Err(_)) => true,
+        (Err(_), _) => false,
     }
 }
 
