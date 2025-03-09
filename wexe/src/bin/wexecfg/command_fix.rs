@@ -18,13 +18,13 @@ pub struct FixCommand {
     names: Vec<&'static str>,
 }
 
-pub enum FixCommandTarget {
+pub enum FixCommandTargets {
     All,
-    Tag(String),
+    Tags(Vec<String>),
 }
 
 pub struct FixCommandOptions {
-    pub target: FixCommandTarget,
+    pub targets: Option<FixCommandTargets>,
 }
 
 impl FixCommand {
@@ -52,4 +52,3 @@ impl Command for FixCommand {
         panic!("Not implemented: /fix");
     }
 }
-
