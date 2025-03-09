@@ -7,9 +7,11 @@ use args_buffer::ArgumentsBuffer;
 use commands::CommandCollection;
 
 mod args_buffer;
+mod command_fix;
 mod command_help;
 mod command_install;
 mod command_list;
+mod command_wrap;
 mod commands;
 mod help_central;
 mod wexe_repository;
@@ -19,6 +21,8 @@ fn setup_commands() -> CommandCollection {
     commands.add_command(Box::new(command_help::HelpCommand::new()));
     commands.add_command(Box::new(command_list::ListCommand::new()));
     commands.add_command(Box::new(command_install::InstallCommand::new()));
+    commands.add_command(Box::new(command_wrap::WrapCommand::new()));
+    commands.add_command(Box::new(command_fix::FixCommand::new()));
     commands
 }
 

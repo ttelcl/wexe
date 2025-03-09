@@ -12,7 +12,9 @@ use super::wexe_repository::{WexeRepository, target_missing_or_older};
 
 use wexe::console_colors::*;
 
-pub struct InstallCommand {}
+pub struct InstallCommand {
+    names: Vec<&'static str>,
+}
 
 pub struct InstallCommandOptions {
     pub include_wexe: bool,
@@ -45,17 +47,19 @@ impl InstallCommandOptions {
 
 impl InstallCommand {
     pub fn new() -> InstallCommand {
-        InstallCommand {}
+        InstallCommand {
+            names: vec!["/install", "/i"],
+        }
     }
 }
 
 impl Command for InstallCommand {
     fn name(&self) -> &str {
-        "/install"
+        self.names[0]
     }
 
     fn name_and_aliases(&self) -> &[&str] {
-        &["/install", "/i"]
+        self.names.as_ref()
     }
 
     fn execute(
