@@ -24,7 +24,9 @@ lazy_static! {
                     eprintln!("{bg_B}{stl_u}{fg_r}WEXE_DEBUG is ON (1){rst}.");
                     true
                 } else {
-                    eprintln!("{bg_B}{stl_u}WEXE_DEBUG is Off (not 1){rst}.");
+                    // Stay completely silent in this case. It was set explicitly, so we can 
+                    // assume the user knows what they're doing.
+                    // eprintln!("{bg_B}{stl_u}WEXE_DEBUG is Off (not 1){rst}.");
                     false
                 }
             }
