@@ -8,6 +8,7 @@ use std::process::ExitCode;
 use std::{env, option};
 
 use same_file::is_same_file;
+use toml_edit::DocumentMut;
 
 use wexe::config_model::is_valid_app_tag;
 use wexe::console_colors::*;
@@ -21,8 +22,8 @@ pub struct WrapCommand {
 }
 
 pub struct WrapCommandOptions {
-    pub target_path: Option<PathBuf>,
-    pub tag: Option<String>,
+    target_path: Option<PathBuf>,
+    tag: Option<String>,
     pub force: bool,
 }
 
@@ -115,6 +116,38 @@ impl WrapCommandOptions {
         }
         true
     }
+
+    /// Get a reference to the target path. Panics if the target path is not set.
+    pub fn get_target_path(&self) -> &PathBuf {
+        self.target_path.as_ref().expect("Target path not set.")
+    }
+
+    /// Get the tag/name for the application, either as set with a 'n' option,
+    /// or derived from the target path.
+    pub fn get_tag(&self) -> Result<String, Box<dyn Error>> {
+        match &self.tag {
+            Some(tag) => Ok(tag.clone()),
+            None => {
+                let target_path = self.get_target_path();
+                let tag = target_path
+                    .file_stem()
+                    .expect("Target path has no file name.")
+                    .to_str()
+                    .expect("Target path file name is not valid.")
+                    .to_lowercase(); // Tags must be lowercase!
+                if !is_valid_app_tag(tag.as_str()) {
+                    println!(
+                        "{fg_o}The application tag derived from target path {fg_y}{:}{fg_o} is not valid{rst}. \
+                        Please pass a valid tag with {fg_g}-n{rst}.",
+                        target_path.to_string_lossy()
+                    );
+                    Err("Invalid application tag derived from target path.".into())
+                } else {
+                    Ok(tag)
+                }
+            }
+        }
+    }
 }
 
 impl WrapCommand {
@@ -144,6 +177,99 @@ impl Command for WrapCommand {
             _commands.print_help_for(self.name());
             return Err(format!("Invalid arguments for command '{}'.", self.name()).into());
         }
-        panic!("Not implemented: /wrap");
+        let target = options.get_target_path();
+        let target_name = target.to_string_lossy();
+        let tag = options.get_tag()?;
+        println!(
+            "Building application configuration '{fg_g}{tag}{rst}' targetting '{fg_c}{target_name}{rst}'."
+        );
+
+        // First build the configuration file, handle an existing file only after that.
+        // let mut doc = DocumentMut::new();
+        // doc["target"] = toml_edit::value(target_name.as_ref());
+
+        let mut doc = r#"
+# Additional arguments to prepend or append to the given command line.
+[args]
+prepend = [ ]
+append = [ ]
+
+# Plain environment variables to set or delete
+[env.set]
+# FOO = 'bar'
+# BAR = ''
+
+# You can prepend or append items to PATH-like environment variables
+# For example: prepend or append to the PATH environment variable itself
+[env.pathlike.PATH]
+prepend = [ ]
+append = [ ]
+"#
+        .parse::<DocumentMut>()
+        .expect("invalid toml");
+        doc["target"] = toml_edit::value(target_name.as_ref());
+
+        let document_text = doc.to_string();
+        //println!("DEBUG: Document: \n{fg_b}{document_text}{rst}");
+
+        let repo = WexeRepository::new();
+        let cfg_folder = repo.get_config_folder();
+        let final_file = cfg_folder.join(tag.as_str()).with_extension("toml");
+        let tmp_file = final_file.with_extension("toml.tmp");
+        let bak_file = final_file.with_extension("toml.bak");
+        // println!(
+        //     "Saving intermediate config file: {fg_b}{:}{rst}",
+        //     tmp_file.to_string_lossy()
+        // );
+        fs::write(&tmp_file, document_text)?;
+
+        // Only now check if an entry for the application already exists, and use the
+        // configuration accordingly.
+        let existing_entry = repo.find_entry(tag.as_str());
+        match existing_entry {
+            Some(_entry) => {
+                if options.force {
+                    println!(
+                        "{fg_y}An entry for application '{fg_g}{tag}{fg_y}' already exists{rst}.\
+                        \n{fg_o}Backing up and overwriting {fg_y}{}{rst}.",
+                        final_file.to_string_lossy()
+                    );
+                    fs::rename(&final_file, &bak_file)?;
+                    fs::rename(&tmp_file, &final_file)?;
+                } else {
+                    println!(
+                        "{fg_y}An entry for application '{fg_g}{tag}{fg_y}' already exists{rst}.\
+                        \nNot overwriting it; new version is in {fg_b}{}{rst}.",
+                        tmp_file.to_string_lossy()
+                    );
+                }
+            }
+            None => {
+                println!("Saving {fg_g}{}{rst}", final_file.to_string_lossy());
+                fs::rename(&tmp_file, &final_file)?;
+            }
+        }
+        let exe_file = final_file.with_extension("exe");
+        let wexe_file = repo.get_wexe_exe_path();
+        if !wexe_file.exists() {
+            eprintln!(
+                "{fg_o}The wexe executable file {fg_y}{}{fg_o} is not installed; cannot copy it{rst}.",
+                wexe_file.to_string_lossy()
+            );
+            return Ok(ExitCode::FAILURE);
+        }
+        if exe_file.exists() {
+            println!(
+                "{fg_y}Updating existing executable file {fg_c}{}{rst}.",
+                exe_file.to_string_lossy()
+            );
+        } else {
+            println!(
+                "{fg_y}Creating application executable {fg_g}{}{rst}.",
+                exe_file.to_string_lossy()
+            );
+            fs::copy(&wexe_file, &exe_file)?;
+        }
+        Ok(ExitCode::SUCCESS)
     }
 }

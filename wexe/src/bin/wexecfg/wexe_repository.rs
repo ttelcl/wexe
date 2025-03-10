@@ -145,11 +145,6 @@ impl WexeRepository {
         &self.config_folder
     }
 
-    // /// Get the path to the wexe binary folder (where wexe and wexecfg themselves are installed)
-    // pub fn get_bin_folder(&self) -> &PathBuf {
-    //     &self.bin_folder
-    // }
-
     /// Get the file path to the installed wexe executable.
     pub fn get_wexe_exe_path(&self) -> &PathBuf {
         &self.wexe_exe_path
@@ -163,5 +158,9 @@ impl WexeRepository {
     /// Enumerate all wexe entries in the repository.
     pub fn get_entries(&self) -> Vec<&WexeEntry> {
         self.entries.values().collect()
+    }
+
+    pub fn find_entry(&self, tag: &str) -> Option<&WexeEntry> {
+        self.entries.get(tag)
     }
 }
