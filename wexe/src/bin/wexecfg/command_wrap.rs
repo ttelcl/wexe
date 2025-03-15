@@ -25,6 +25,8 @@ pub struct WrapCommandOptions {
     target_path: Option<PathBuf>,
     tag: Option<String>,
     pub force: bool,
+    pre_args: Vec<String>,
+    pre_path: Vec<String>,
 }
 
 impl WrapCommandOptions {
@@ -33,6 +35,8 @@ impl WrapCommandOptions {
             target_path: None,
             tag: None,
             force: false,
+            pre_args: Vec::new(),
+            pre_path: Vec::new(),
         }
     }
 
@@ -92,6 +96,51 @@ impl WrapCommandOptions {
                         Err(e) => {
                             eprintln!(
                                 "{fg_o}Error resolving target executable path {fg_y}{target}{fg_o}: {fg_R}{e}{rst}."
+                            );
+                            return false;
+                        }
+                    }
+                    args.skip(2);
+                }
+                "-a" | "-arg" | "-preargs" => {
+                    if args.remaining() < 2 {
+                        eprintln!(
+                            "{fg_o}Option {fg_y}{arg_key}{fg_o} requires an argument {fg_W}(the argument to prepend).{rst}",
+                        );
+                        return false;
+                    }
+                    let arg = args.get_at(1);
+                    self.pre_args.push(arg.to_string());
+                    args.skip(2);
+                }
+                "-p" | "-path" | "-prepath" => {
+                    if args.remaining() < 2 {
+                        eprintln!(
+                            "{fg_o}Option {fg_y}{arg_key}{fg_o} requires an argument {fg_W}(the path to prepend to PATH){rst}.",
+                        );
+                        return false;
+                    }
+                    let path = args.get_at(1);
+                    match std::path::absolute(path) {
+                        Ok(path) => {
+                            let path_txt = path.to_string_lossy();
+                            if !path.is_dir() {
+                                if !path.exists() {
+                                    eprintln!(
+                                        "{fg_r}{arg_key}{rst} {fg_y}{path_txt}{fg_o}: Path does not exist{rst}.",
+                                    );
+                                } else {
+                                    eprintln!(
+                                        "{fg_r}{arg_key}{rst} {fg_y}{path_txt}{fg_o}: Path is not a directory{rst}.",
+                                    );
+                                }
+                                return false;
+                            }
+                            self.pre_path.push(path_txt.to_string());
+                        }
+                        Err(e) => {
+                            eprintln!(
+                                "{fg_o}Error resolving absolute path to prepend to PATH {fg_y}{path}{fg_o}: {fg_R}{e}{rst}."
                             );
                             return false;
                         }
@@ -208,6 +257,23 @@ append = [ ]
         .parse::<DocumentMut>()
         .expect("invalid toml");
         doc["target"] = toml_edit::value(target_name.as_ref());
+
+        let arg_prepend = doc["args"]["prepend"]
+            .as_array_mut()
+            .expect("args.prepend is not an array");
+        for arg in options.pre_args.iter() {
+            let mut v: toml_edit::Value = arg.into();
+            v.decor_mut().set_prefix("\n  ");
+            arg_prepend.push_formatted(v);
+        }
+        let path_prepend = doc["env"]["pathlike"]["PATH"]["prepend"]
+            .as_array_mut()
+            .expect("env.pathlike.PATH.prepend is not an array");
+        for path in options.pre_path.iter() {
+            let mut v: toml_edit::Value = path.into();
+            v.decor_mut().set_prefix("\n  ");
+            path_prepend.push_formatted(v);
+        }
 
         let document_text = doc.to_string();
         //println!("DEBUG: Document: \n{fg_b}{document_text}{rst}");

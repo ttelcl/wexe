@@ -60,10 +60,10 @@ fn init_help() -> Vec<CommandHelp> {
             "{fg_g}-n {fg_c}{stl_i}name{rst}         If given, overrides the name of the application."
         ),
         format!(
-            "{fg_g}-a {fg_c}{stl_i}argument{rst}     ({stl_i}repeatable{rst}) Command-line argument to always prepend."
+            "{fg_g}-a {fg_c}{stl_i}argument{rst}     ({stl_i}repeatable{rst}) Extra command-line argument to prepend."
         ),
         format!(
-            "{fg_g}-p {fg_c}{stl_i}path{rst}         ({stl_i}repeatable{rst}) Path to prepend to PATH."
+            "{fg_g}-p {fg_c}{stl_i}path{rst}         ({stl_i}repeatable{rst}) Extra path to prepend to PATH."
         ),
         format!(
             "{fg_g}-F{rst}              ('{stl_i}Force{rst}') If the configuration file already exists, overwrite it instead of \
