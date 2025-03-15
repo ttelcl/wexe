@@ -71,6 +71,17 @@ fn init_help() -> Vec<CommandHelp> {
         )],
     });
     help.push(CommandHelp {
+        command: "/drop".into(),
+        synopsis: format!("{fg_y}/drop{fg_W} {fg_c}{stl_i}app-name{rst}"),
+        description: format!(
+            "Removes the configuration and stub for the specified application."
+        )
+        .into(),
+        options: vec![
+            format!("{fg_c}{stl_i}app-name{rst}        The name of the application to remove."),
+        ],
+    });
+    help.push(CommandHelp {
         command: "/fix".into(),
         synopsis: format!("{fg_y}/fix{fg_W} [{fg_g}-all{fg_W}|{fg_c}{stl_i}app-name{rst}]"),
         description: format!(

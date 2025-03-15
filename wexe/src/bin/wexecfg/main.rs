@@ -7,6 +7,7 @@ use args_buffer::ArgumentsBuffer;
 use commands::CommandCollection;
 
 mod args_buffer;
+mod command_drop;
 mod command_fix;
 mod command_help;
 mod command_install;
