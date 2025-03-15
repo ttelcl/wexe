@@ -38,7 +38,11 @@ fn init_help() -> Vec<CommandHelp> {
     });
     help.push(CommandHelp {
         command: "/wrap".into(),
-        synopsis: format!("{fg_y}/wrap {fg_g}-x {fg_c}{stl_i}target.exe{rst} [{fg_g}-n {fg_c}{stl_i}name{rst}] [{fg_g}-F{rst}]"),
+        synopsis: format!(
+            "{fg_y}/wrap {fg_g}-x {fg_c}{stl_i}target.exe{rst} [{fg_g}-n {fg_c}{stl_i}name{rst}] \
+            {{{fg_g}-a {fg_c}{stl_i}argument{rst}}} \
+            {{{fg_g}-p {fg_c}{stl_i}path{rst}}} \
+            [{fg_g}-F{rst}]"),
         description: format!(
             "Create a new application for the target executable. Creates a configuration file and a stub \
             executable.\
@@ -56,6 +60,12 @@ fn init_help() -> Vec<CommandHelp> {
             "{fg_g}-n {fg_c}{stl_i}name{rst}         If given, overrides the name of the application."
         ),
         format!(
+            "{fg_g}-a {fg_c}{stl_i}argument{rst}     ({stl_i}repeatable{rst}) Command-line argument to always prepend."
+        ),
+        format!(
+            "{fg_g}-p {fg_c}{stl_i}path{rst}         ({stl_i}repeatable{rst}) Path to prepend to PATH."
+        ),
+        format!(
             "{fg_g}-F{rst}              ('{stl_i}Force{rst}') If the configuration file already exists, overwrite it instead of \
             creating a candidate."
         )],
@@ -67,12 +77,10 @@ fn init_help() -> Vec<CommandHelp> {
             "Recreate the application stub for the specified application or all applications."
         )
         .into(),
-        options: vec![format!(
-            "{fg_g}-all{fg_W}            Update all application stubs."
-        ),
-        format!(
-            "{fg_c}{stl_i}app-name{rst}        Update {fg_c}{stl_i}app-name{rst} only."
-        )],
+        options: vec![
+            format!("{fg_g}-all{fg_W}            Update all application stubs."),
+            format!("{fg_c}{stl_i}app-name{rst}        Update {fg_c}{stl_i}app-name{rst} only."),
+        ],
     });
     help.push(CommandHelp {
         command: "/install".into(),
