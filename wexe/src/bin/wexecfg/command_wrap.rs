@@ -218,12 +218,12 @@ impl Command for WrapCommand {
 
     fn execute(
         &self,
-        _args: &mut ArgumentsBuffer,
-        _commands: &CommandCollection,
+        args: &mut ArgumentsBuffer,
+        commands: &CommandCollection,
     ) -> Result<ExitCode, Box<dyn Error>> {
         let mut options = WrapCommandOptions::new();
-        if !options.parse_args(_args) {
-            _commands.print_help_for(self.name());
+        if !options.parse_args(args) {
+            commands.print_help_for(self.name());
             return Err(format!("Invalid arguments for command '{}'.", self.name()).into());
         }
         let target = options.get_target_path();
