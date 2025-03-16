@@ -24,6 +24,7 @@ fn setup_commands() -> CommandCollection {
     commands.add_command(Box::new(command_install::InstallCommand::new()));
     commands.add_command(Box::new(command_wrap::WrapCommand::new()));
     commands.add_command(Box::new(command_fix::FixCommand::new()));
+    commands.add_command(Box::new(command_drop::DropCommand::new()));
     commands
 }
 
