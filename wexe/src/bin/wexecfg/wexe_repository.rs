@@ -72,6 +72,10 @@ impl WexeEntry {
         &self.target_exe_path
     }
 
+    pub fn target_exists(&self) -> bool {
+        self.target_exe_path.is_some() && self.target_exe_path.as_ref().unwrap().exists()
+    }
+
     pub fn get_load_error(&self) -> &Option<String> {
         &self.load_error
     }
