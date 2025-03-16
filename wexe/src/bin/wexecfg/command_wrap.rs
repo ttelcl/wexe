@@ -175,7 +175,16 @@ impl WrapCommandOptions {
     /// or derived from the target path.
     pub fn get_tag(&self) -> Result<String, Box<dyn Error>> {
         match &self.tag {
-            Some(tag) => Ok(tag.clone()),
+            Some(tag) => {
+                if tag == "wexe" || tag == "wexecfg" {
+                    println!(
+                        "{fg_o}The tags {fg_y}wexe{fg_o} and {fg_y}wexecfg{fg_o} are reserved and cannot be used for applications{rst}."
+                    );
+                    Err("Invalid application tag specified.".into())
+                } else {
+                    Ok(tag.clone())
+                }
+            }
             None => {
                 let target_path = self.get_target_path();
                 let tag = target_path
@@ -189,6 +198,11 @@ impl WrapCommandOptions {
                         "{fg_o}The application tag derived from target path {fg_y}{:}{fg_o} is not valid{rst}. \
                         Please pass a valid tag with {fg_g}-n{rst}.",
                         target_path.to_string_lossy()
+                    );
+                    Err("Invalid application tag derived from target path.".into())
+                } else if tag == "wexe" || tag == "wexecfg" {
+                    println!(
+                        "{fg_o}The tags {fg_y}wexe{fg_o} and {fg_y}wexecfg{fg_o} are reserved and cannot be used for applications{rst}."
                     );
                     Err("Invalid application tag derived from target path.".into())
                 } else {

@@ -66,6 +66,12 @@ impl FixCommandOptions {
                         }
                         return false;
                     }
+                    if x == "wexe" || x == "wexecfg" {
+                        eprintln!(
+                            "{fg_o}The tags {fg_y}wexe{fg_o} and {fg_y}wexecfg{fg_o} are reserved and cannot be used for applications{rst}."
+                        );
+                        return false;
+                    }
                     match self.targets {
                         Some(FixCommandTargets::Tags(ref mut tags)) => {
                             tags.push(x.to_string());
