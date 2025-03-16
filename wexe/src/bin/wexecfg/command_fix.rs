@@ -42,24 +42,24 @@ impl FixCommandOptions {
                     self.targets = Some(FixCommandTargets::All);
                     args.skip(1);
                 }
-                x => {
-                    if !is_valid_app_tag(x) {
-                        if is_valid_app_tag(x.to_ascii_lowercase().as_str()) {
+                tag => {
+                    if !is_valid_app_tag(tag) {
+                        if is_valid_app_tag(tag.to_ascii_lowercase().as_str()) {
                             // Give a better error message in case the only issue is that there
                             // are upper case characters in the tag
                             eprintln!(
-                                "{fg_o}Application tags must not contain upper case characters: {fg_y}{x}{rst}."
+                                "{fg_o}Application tags must not contain upper case characters: {fg_y}{tag}{rst}."
                             );
-                        } else if x.starts_with('-') {
-                            eprintln!("{fg_o}Unrecognized option: {fg_y}{x}{fg_o}{rst}.");
+                        } else if tag.starts_with('-') {
+                            eprintln!("{fg_o}Unrecognized option: {fg_y}{tag}{fg_o}{rst}.");
                         } else {
                             eprintln!(
-                                "{fg_o}Expecting {fg_y}-all{fg_o} or a valid application tag: {fg_y}{x}{fg_o} is neither{rst}."
+                                "{fg_o}Expecting {fg_y}-all{fg_o} or a valid application tag: {fg_y}{tag}{fg_o} is neither{rst}."
                             );
                         }
                         return false;
                     }
-                    if x == "wexe" || x == "wexecfg" {
+                    if tag == "wexe" || tag == "wexecfg" {
                         eprintln!(
                             "{fg_o}The tags {fg_y}wexe{fg_o} and {fg_y}wexecfg{fg_o} are reserved and cannot be used for applications{rst}."
                         );
@@ -67,16 +67,16 @@ impl FixCommandOptions {
                     }
                     match self.targets {
                         Some(FixCommandTargets::Tags(ref mut tags)) => {
-                            tags.push(x.to_string());
+                            tags.push(tag.to_string());
                         }
                         Some(FixCommandTargets::All) => {
                             eprintln!(
-                                "{fg_o}Option {fg_y}-all{fg_o} cannot be combined with other arguments: {fg_y}{x}{rst}."
+                                "{fg_o}Option {fg_y}-all{fg_o} cannot be combined with other arguments: {fg_y}{tag}{rst}."
                             );
                             return false;
                         }
                         None => {
-                            self.targets = Some(FixCommandTargets::Tags(vec![x.to_string()]));
+                            self.targets = Some(FixCommandTargets::Tags(vec![tag.to_string()]));
                         }
                     }
                     args.skip(1);
@@ -236,7 +236,7 @@ impl Command for FixCommand {
         let mut options = FixCommandOptions::new();
         if !options.parse_args(args) {
             commands.print_help_for(self.name());
-            return Err(format!("Invalid arguments for command '{}'.", self.name()).into());
+            return Ok(ExitCode::FAILURE);
         }
         match options.targets {
             None => {

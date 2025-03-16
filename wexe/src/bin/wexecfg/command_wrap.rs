@@ -1,13 +1,8 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-
 use std::error::Error;
 use std::fs;
-use std::path::{Path, PathBuf, absolute};
+use std::path::PathBuf;
 use std::process::ExitCode;
-use std::{env, option};
 
-use same_file::is_same_file;
 use toml_edit::DocumentMut;
 
 use wexe::config_model::is_valid_app_tag;
@@ -15,7 +10,7 @@ use wexe::console_colors::*;
 
 use super::args_buffer::ArgumentsBuffer;
 use super::commands::{Command, CommandCollection};
-use super::wexe_repository::{WexeRepository, target_missing_or_older};
+use super::wexe_repository::WexeRepository;
 
 pub struct WrapCommand {
     names: Vec<&'static str>,
@@ -238,7 +233,7 @@ impl Command for WrapCommand {
         let mut options = WrapCommandOptions::new();
         if !options.parse_args(args) {
             commands.print_help_for(self.name());
-            return Err(format!("Invalid arguments for command '{}'.", self.name()).into());
+            return Ok(ExitCode::FAILURE);
         }
         let target = options.get_target_path();
         let target_name = target.to_string_lossy();

@@ -1,7 +1,3 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-
-use std::env;
 use std::error::Error;
 use std::fs;
 use std::process::ExitCode;
@@ -11,7 +7,7 @@ use wexe::console_colors::*;
 
 use super::args_buffer::ArgumentsBuffer;
 use super::commands::{Command, CommandCollection};
-use super::wexe_repository::{WexeRepository, target_missing_or_older};
+use super::wexe_repository::WexeRepository;
 
 pub struct DropCommand {
     names: Vec<&'static str>,
@@ -94,15 +90,11 @@ impl Command for DropCommand {
             if cfg_exists {
                 let cfg_bak = cfg_path.with_extension("toml.bak");
                 fs::rename(&cfg_path, &cfg_bak)?;
-                eprintln!(
-                    "{fg_c}{tag:>20}{fg_W} : {fg_w}Configuration file removed{rst}."
-                );
+                eprintln!("{fg_c}{tag:>20}{fg_W} : {fg_w}Configuration file removed{rst}.");
             }
             if stub_exists {
                 fs::remove_file(&stub_path)?;
-                eprintln!(
-                    "{fg_c}{tag:>20}{fg_W} : {fg_w}Stub deleted{rst}."
-                );
+                eprintln!("{fg_c}{tag:>20}{fg_W} : {fg_w}Stub deleted{rst}.");
             }
         }
         Ok(ExitCode::SUCCESS)

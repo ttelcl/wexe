@@ -70,7 +70,7 @@ impl Command for InstallCommand {
         let mut options = InstallCommandOptions::new();
         if !options.parse_args(args) {
             commands.print_help_for(self.name());
-            return Err(format!("Invalid arguments for command '{}'.", self.name()).into());
+            return Ok(ExitCode::FAILURE);
         }
         let exe = env::current_exe().expect("Could not get the current executable path.");
         let current_exe_folder = exe
@@ -84,7 +84,7 @@ impl Command for InstallCommand {
                 "{fg_r}Error!{fg_o} The current exe folder is the same as the config folder{rst}. \
                 \n{fg_y}Run {fg_o}wexecfg /install{fg_y} from the directory where it was built{rst}."
             );
-            return Err("Current exe folder is the same as the config folder.".into());
+            return Ok(ExitCode::FAILURE);
         }
 
         let wexecfg_dest = repo.get_wexecfg_exe_path();

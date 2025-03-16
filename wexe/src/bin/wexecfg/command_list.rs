@@ -68,7 +68,7 @@ impl Command for ListCommand {
         let mut options = ListCommandOptions::new();
         if !options.parse_args(_args) {
             commands.print_help_for(self.name());
-            return Err(format!("Invalid arguments for command '{}'.", self.name()).into());
+            return Ok(ExitCode::FAILURE);
         }
         println!("Registered applications{rst}:");
         let repo = WexeRepository::new();
@@ -104,7 +104,6 @@ impl Command for ListCommand {
                 style_target = format!("");
             }
             let stub_stamp = get_file_stamp(app.get_stub_exe_path());
-            //let stub_stamp = get_file_stamp(app.get_cfg_path());
             let stub_style: String;
             let stub_stamp_text: String = match stub_stamp {
                 Some(stamp) => {

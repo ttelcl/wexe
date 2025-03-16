@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
 use std::process::ExitCode;
@@ -62,11 +60,11 @@ impl CommandCollection {
         }
     }
 
-    /// Return a list of all commands in this collection as a newly allocated vector.
-    /// The commands are ordered by their primary name.
-    pub fn get_commands(&self) -> Vec<&Box<dyn Command>> {
-        self.commands.values().collect()
-    }
+    // /// Return a list of all commands in this collection as a newly allocated vector.
+    // /// The commands are ordered by their primary name.
+    // pub fn get_commands(&self) -> Vec<&Box<dyn Command>> {
+    //     self.commands.values().collect()
+    // }
 
     /// Print help for all commands.
     pub fn print_all_help(&self) -> Result<ExitCode, Box<dyn Error>> {

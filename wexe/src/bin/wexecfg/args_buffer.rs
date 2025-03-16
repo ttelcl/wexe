@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 
 pub struct ArgumentsBuffer {
     all_args: Vec<String>,
