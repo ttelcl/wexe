@@ -1,13 +1,7 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-
 use std::collections::BTreeSet;
-use std::env;
 use std::error::Error;
 use std::fs;
 use std::process::ExitCode;
-
-use same_file::is_same_file;
 
 use wexe::config_model::is_valid_app_tag;
 use wexe::console_colors::*;

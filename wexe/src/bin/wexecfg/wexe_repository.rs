@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::collections::BTreeMap;
 use std::env::consts::EXE_SUFFIX;
 use std::fs::read_dir;
@@ -64,6 +62,7 @@ impl WexeEntry {
         &self.stub_exe_path
     }
 
+    #[allow(dead_code)]
     pub fn get_cfg_path(&self) -> &PathBuf {
         &self.cfg_path
     }
@@ -133,11 +132,6 @@ impl WexeRepository {
         }
     }
 
-    /// Test if the given tag is a valid wexe application tag.
-    pub fn is_valid_app_tag(&self, tag: &str) -> bool {
-        is_valid_app_tag(tag)
-    }
-
     /// Get the path to the root wexe configuration folder (where wexe configuration files
     /// and app stubs are stored)
     pub fn get_config_folder(&self) -> &PathBuf {
@@ -168,5 +162,11 @@ impl WexeRepository {
     /// (the resulting path may or may not exist as a file)
     pub fn get_stub_path(&self, tag: &str) -> PathBuf {
         self.config_folder.join(tag.to_owned() + EXE_SUFFIX)
+    }
+
+    /// Create the path to the configuration file for the given tag.
+    /// (the resulting path may or may not exist as a file)
+    pub fn get_config_path(&self, tag: &str) -> PathBuf {
+        self.config_folder.join(tag.to_owned() + ".toml")
     }
 }
