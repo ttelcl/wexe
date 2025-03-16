@@ -102,6 +102,79 @@ impl FixCommand {
     }
 }
 
+fn fix_all() -> Result<(), Box<dyn Error>> {
+    let _repo: WexeRepository = WexeRepository::new();
+    panic!("Not implemented: /fix -all");
+}
+
+fn fix_tag(repo: &WexeRepository, tag: &str) -> Result<(), Box<dyn Error>> {
+    if tag == "wexe" || tag == "wexecfg" {
+        // This case should have been handled by the argument parsing already,
+        // but just in case we get here, we'll print a message and return.
+        eprintln!(
+            "{fg_o}Skipping reserved application tag {stl_i}{fg_y}{tag}{rst}."
+        );
+        return Ok(());
+    }
+    let entry = repo.find_entry(tag);
+    match entry {
+        Some(entry) => {
+            // existing entry: ensure the stub exists and is up to date
+            let wexe_path = repo.get_wexe_exe_path();
+            if !wexe_path.exists() {
+                eprintln!(
+                    "{fg_r}WEXE executable not found: {fg_y}{:} {fg_o}Missing call to {fg_y}wexecfg /install{rst}?",
+                    wexe_path.to_string_lossy()
+                );
+                return Err("WEXE executable not installed.".into());
+            }
+            let stub_path = entry.get_stub_exe_path();
+            let fix_needed = target_missing_or_older(&wexe_path, &stub_path);
+            if fix_needed {
+                if stub_path.exists() {
+                    println!(
+                        "{fg_c}{tag:>20}{fg_W} : {fg_y}Updating existing stub{rst}."
+                    );
+                    fs::copy(&wexe_path, &stub_path)?;
+                } else {
+                    println!(
+                        "{fg_c}{tag:>20}{fg_W} : {fg_y}Creating missing stub{rst}."
+                    );
+                    fs::copy(&wexe_path, &stub_path)?;
+                }
+            } else {
+                println!(
+                    "{fg_g}{tag:>20}{fg_W} : {fg_y}Stub is already up to date{rst}."
+                );
+            }
+            Ok(())
+        }
+        None => {
+            // Missing entry: ensure there is no dangling stub
+            let stub_path = repo.get_stub_path(tag);
+            if stub_path.exists() {
+                println!(
+                    "{fg_o}{tag:>20}{fg_W} : {fg_y}Removing orphaned stub{rst}."
+                );
+                fs::remove_file(stub_path)?;
+            } else {
+                println!(
+                    "{fg_b}{tag:>20}{fg_W} : {fg_y}No such application or stub{rst}."
+                );
+            }
+            Ok(())
+        }
+    }
+}
+
+fn fix_tags(tags: &Vec<String>) -> Result<(), Box<dyn Error>> {
+    let repo: WexeRepository = WexeRepository::new();
+    for tag in tags {
+        fix_tag(&repo, tag)?;
+    }
+    Ok(())
+}
+
 impl Command for FixCommand {
     fn name(&self) -> &str {
         self.names[0]
@@ -128,13 +201,15 @@ impl Command for FixCommand {
                     self.name()
                 );
                 commands.print_help_for(self.name());
-                return Err("No target specified.".into());
+                Err("No target specified.".into())
             }
             Some(FixCommandTargets::All) => {
-                panic!("Not implemented: /fix -all");
+                fix_all()?;
+                Ok(ExitCode::SUCCESS)
             }
-            Some(FixCommandTargets::Tags(_tags)) => {
-                panic!("Not implemented: /fix (appnames)");
+            Some(FixCommandTargets::Tags(tags)) => {
+                fix_tags(&tags)?;
+                Ok(ExitCode::SUCCESS)
             }
         }
     }

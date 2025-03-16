@@ -101,11 +101,6 @@ impl WexeRepository {
                                     load_error = None;
                                 }
                                 Err(e) => {
-                                    // eprintln!(
-                                    //     "{stl_i}{fg_R}Error reading configuration file for app {fg_o}{:}{rst}: {fg_R}{:}{rst}.",
-                                    //     tag.clone(),
-                                    //     e
-                                    // );
                                     target_exe_path = None;
                                     load_error = Some(e.to_string());
                                 }
@@ -160,7 +155,14 @@ impl WexeRepository {
         self.entries.values().collect()
     }
 
+    /// Find a wexe entry by tag.
     pub fn find_entry(&self, tag: &str) -> Option<&WexeEntry> {
         self.entries.get(tag)
+    }
+
+    /// Create the path to the stub executable for the given tag.
+    /// (the resulting path may or may not exist as a file)
+    pub fn get_stub_path(&self, tag: &str) -> PathBuf {
+        self.config_folder.join(tag.to_owned() + EXE_SUFFIX)
     }
 }

@@ -25,7 +25,7 @@ pub struct DropCommandOptions {
 impl DropCommand {
     pub fn new() -> DropCommand {
         DropCommand {
-            names: vec!["/drop"],
+            names: vec!["/drop", "/delete", "/rm", "/del"],
         }
     }
 }
