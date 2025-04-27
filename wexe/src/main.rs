@@ -59,7 +59,7 @@ fn run_app_raw(args: Vec<String>, cfg: WexeApp) -> Result<i32, Box<dyn Error>> {
     }
 
     if wexe_dbg() {
-        println!("{bg_B}Running command: {fg_g}{:?}{rst}.", cmd);
+        eprintln!("{bg_B}Running command: {fg_g}{:?}{rst}.", cmd);
     }
 
     let status = cmd.status();
