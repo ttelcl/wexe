@@ -3,6 +3,7 @@ use std::process::Command;
 use std::process::Termination;
 use std::{error::Error, path::PathBuf};
 // use std::os::windows::process::ExitCodeExt; // not yet stable :(
+use ctrlc;
 
 use wexe::config_model::{WexeApp, get_config_file, is_valid_app_tag, read_config_file, wexe_dbg};
 use wexe::console_colors::*;
@@ -59,8 +60,17 @@ fn run_app_raw(args: Vec<String>, cfg: WexeApp) -> Result<i32, Box<dyn Error>> {
     }
 
     if wexe_dbg() {
-        println!("{bg_B}Running command: {fg_g}{:?}{rst}.", cmd);
+        eprintln!("{bg_B}Running command: {fg_g}{:?}{rst}.", cmd);
     }
+
+    // About to actually run the command. Disable CTRL-C handling here, so the target process
+    // decides how to handle it. If we would not do this, the target process would do its own
+    // CTRL-C handling, but this wrapper would terminate, leaving the target dangling.
+
+    ctrlc::set_handler(move || {
+        //eprintln!("{bg_B}CTRL-C handler called in WEXE, but ignoring it{rst}.");
+    })
+    .expect("Error setting Ctrl-C handler");
 
     let status = cmd.status();
     match status {
