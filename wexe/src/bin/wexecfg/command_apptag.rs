@@ -3,8 +3,8 @@ use std::process::ExitCode;
 
 use super::args_buffer::ArgumentsBuffer;
 use super::commands::{Command, CommandCollection};
-//use super::wexe_repository::WexeRepository;
-//use super::wexe_repository::get_file_stamp;
+use super::wexe_repository::WexeRepository;
+use super::wexe_repository::get_file_stamp;
 
 use wexe::config_model::is_valid_app_tag;
 use wexe::console_colors::*;
@@ -80,6 +80,35 @@ impl Command for ApptagCommand {
         if !options.parse_args(args) {
             commands.print_help_for(self.name());
             return Ok(ExitCode::FAILURE);
+        }
+        let repo = WexeRepository::new();
+        for tag in options.targets {
+            let entry = repo.find_entry(&tag);
+            match entry {
+                Some(entry) => {
+                    if !entry.target_exists() {
+                        eprintln!("{fg_c}{tag:>20}{fg_W} : {fg_r}App target executable missing. Skipping{rst}.");
+                        continue;
+                    }
+                    let target_exe = entry.get_target_exe_path().clone().unwrap();
+                    let stamp_option = get_file_stamp(&target_exe);
+                    match stamp_option {
+                        None => {
+                            eprintln!("{fg_c}{tag:>20}{fg_W} : {fg_r}Unable to access target file time stamp. Skipping{rst}.");
+                            continue;
+                        }
+                        Some(stamp) => {
+                            eprintln!(
+                                "{fg_c}{tag:>20}{fg_W} : {fg_r}WIP{rst} - FYI, the time stamp is {stamp}."
+                            );
+                        }
+                    }
+                }
+                None => {
+                    eprintln!("{fg_c}{tag:>20}{fg_W} : {fg_r}Unknown application. Skipping{rst}.");
+                    continue;
+                }
+            }
         }
         eprintln!(
             "{fg_o}The {fg_y}/apptag{fg_o} command is not yet implemented.{rst}.",
