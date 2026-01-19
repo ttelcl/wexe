@@ -1,3 +1,5 @@
+//use std::fmt::format;
+
 use wexe::console_colors::*;
 
 pub struct CommandHelp {
@@ -106,6 +108,21 @@ fn init_help() -> Vec<CommandHelp> {
         options: vec![format!(
             "{fg_g}-wexe{rst}           If given, also copies {fg_o}wexe.exe{rst} to the installation folder."
         )],
+    });
+    help.push(CommandHelp {
+        command: "/apptag".into(),
+        synopsis: format!("{fg_y}/apptag{rst} [{fg_g}-mk{rst}] {{{fg_c}{stl_i}app-name{rst}}}"),
+        description: format!(
+            "Generate or update empty {fg_c}{stl_i}app-name{rst}{fg_o}.apptag{rst} file(s) with a timestamp \
+            matching the timestamp of the target\n    application executable(s).\
+            \n    Alternatively, generate makefile(s) ({fg_c}{stl_i}app-name{rst}{fg_o}.apptag.mk{rst}) with \
+            a rule to generate or update these apptag files."
+        )
+        .into(),
+        options: vec![
+            format!("{fg_c}{stl_i}app-name{rst}        The application to generate / update the apptag file(s) for."),
+            format!("{fg_g}-mk{rst}             Instead of generating the apptag file(s) themselves, generate makefiles to update those."),
+        ],
     });
     help
 }
