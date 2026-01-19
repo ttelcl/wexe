@@ -71,6 +71,15 @@ impl WexeEntry {
         &self.target_exe_path
     }
 
+    pub fn get_target_stamp(&self) -> Option<DateTime<Utc>> {
+        match &self.target_exe_path {
+            None => None,
+            Some(path) => {
+                get_file_stamp(&path)
+            }
+        }
+    }
+
     pub fn target_exists(&self) -> bool {
         self.target_exe_path.is_some() && self.target_exe_path.as_ref().unwrap().exists()
     }
