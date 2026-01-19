@@ -7,6 +7,7 @@ use args_buffer::ArgumentsBuffer;
 use commands::CommandCollection;
 
 mod args_buffer;
+mod command_apptag;
 mod command_drop;
 mod command_fix;
 mod command_help;
@@ -25,6 +26,7 @@ fn setup_commands() -> CommandCollection {
     commands.add_command(Box::new(command_wrap::WrapCommand::new()));
     commands.add_command(Box::new(command_fix::FixCommand::new()));
     commands.add_command(Box::new(command_drop::DropCommand::new()));
+    commands.add_command(Box::new(command_apptag::ApptagCommand::new()));
     commands
 }
 
