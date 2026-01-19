@@ -1,10 +1,14 @@
 use std::error::Error;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::PathBuf;
 use std::process::ExitCode;
+
+use crate::wexe_repository::WexeEntry;
 
 use super::args_buffer::ArgumentsBuffer;
 use super::commands::{Command, CommandCollection};
 use super::wexe_repository::WexeRepository;
-use super::wexe_repository::get_file_stamp;
 
 use wexe::config_model::is_valid_app_tag;
 use wexe::console_colors::*;
@@ -62,6 +66,49 @@ impl ApptagCommand {
     }
 }
 
+fn create_apptag_file(tag: &String, entry: &WexeEntry) {
+    //let target_exe = entry.get_target_exe_path().clone().unwrap();
+    //let target_exe_text = target_exe.to_string_lossy();
+    let stamp_option = entry.get_target_stamp();
+    match stamp_option {
+        None => {
+            eprintln!(
+                "{fg_c}{tag:>20}{fg_W} : {fg_r}Unable to access target file time stamp. Skipping{rst}."
+            );
+            return;
+        }
+        Some(stamp) => {
+            let apptag_name_text = tag.to_owned() + ".apptag";
+            let apptag_name = PathBuf::from(&apptag_name_text);
+            eprintln!(
+                "Creating or updating {fg_g}{apptag_name_text}{rst} and applying time stamp {fg_b}{stamp}{rst}."
+            );
+            let file = File::create(apptag_name).unwrap();
+            file.set_modified(stamp.into()).unwrap();
+            return;
+        }
+    }
+}
+
+fn create_apptag_makefile(tag: &String, entry: &WexeEntry) {
+    let target_exe = entry.get_target_exe_path().clone().unwrap();
+    let target_exe_text = target_exe.to_string_lossy();
+    // Escape spaces in the target name. GNU make is really bad with spaces in filenames,
+    // but at least it is worth a try
+    let target_exe_text_escaped = target_exe_text.replace(' ', "\\ ");
+    let apptag_name_text = tag.to_owned() + ".apptag";
+    let mk_name_text = tag.to_owned() + ".apptag.mk";
+    let mk_name = PathBuf::from(&mk_name_text);
+    eprintln!("Writing {fg_g}{mk_name_text}{rst}.");
+    let mut file = File::create(mk_name).unwrap();
+    writeln!(&mut file, "# THIS FILE WAS AUTOMATICALLY GENERATED. DO NOT EDIT.").unwrap();
+    writeln!(&mut file, "# include this makefile in your main makefile").unwrap();
+    writeln!(&mut file).unwrap();
+    writeln!(&mut file, "{apptag_name_text} : {target_exe_text_escaped}").unwrap();
+    writeln!(&mut file, "\twexecfg /apptag {tag}").unwrap();
+    writeln!(&mut file).unwrap();
+}
+
 impl Command for ApptagCommand {
     fn name(&self) -> &str {
         self.names[0]
@@ -87,21 +134,15 @@ impl Command for ApptagCommand {
             match entry {
                 Some(entry) => {
                     if !entry.target_exists() {
-                        eprintln!("{fg_c}{tag:>20}{fg_W} : {fg_r}App target executable missing. Skipping{rst}.");
+                        eprintln!(
+                            "{fg_c}{tag:>20}{fg_W} : {fg_r}App target executable missing. Skipping{rst}."
+                        );
                         continue;
                     }
-                    let target_exe = entry.get_target_exe_path().clone().unwrap();
-                    let stamp_option = get_file_stamp(&target_exe);
-                    match stamp_option {
-                        None => {
-                            eprintln!("{fg_c}{tag:>20}{fg_W} : {fg_r}Unable to access target file time stamp. Skipping{rst}.");
-                            continue;
-                        }
-                        Some(stamp) => {
-                            eprintln!(
-                                "{fg_c}{tag:>20}{fg_W} : {fg_r}WIP{rst} - FYI, the time stamp is {stamp}."
-                            );
-                        }
+                    if options.makefilemode {
+                        create_apptag_makefile(&tag, entry);
+                    } else {
+                        create_apptag_file(&tag, entry);
                     }
                 }
                 None => {
@@ -110,9 +151,6 @@ impl Command for ApptagCommand {
                 }
             }
         }
-        eprintln!(
-            "{fg_o}The {fg_y}/apptag{fg_o} command is not yet implemented.{rst}.",
-        );
-        return Ok(ExitCode::FAILURE);
+        return Ok(ExitCode::SUCCESS);
     }
 }
